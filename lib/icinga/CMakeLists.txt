@@ -50,10 +50,13 @@ add_library(icinga SHARED
   perfdatavalue.cpp perfdatavalue.th pluginutility.cpp scheduleddowntime.cpp scheduleddowntime.th
   scheduleddowntime-apply.cpp service-apply.cpp checkable-check.cpp checkable-comment.cpp service.cpp
   service.th servicegroup.cpp servicegroup.th checkable-notification.cpp timeperiod.cpp timeperiod.th
-  user.cpp user.th usergroup.cpp usergroup.th icinga-type.cpp
+  user.cpp user.th usergroup.cpp usergroup.th icinga-type.cpp pch.cpp
 )
 
 target_link_libraries(icinga ${Boost_LIBRARIES} base config remote)
+
+include(PrecompiledHeader)
+add_precompiled_header(icinga pch.h FORCEINCLUDE)
 
 set_target_properties (
   icinga PROPERTIES

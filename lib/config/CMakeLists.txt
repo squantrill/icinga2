@@ -30,10 +30,13 @@ add_library(config SHARED
   aexpression.cpp applyrule.cpp base-type.conf base-type.cpp
   configcompilercontext.cpp configcompiler.cpp configerror.cpp configitembuilder.cpp
   configitem.cpp ${FLEX_config_lexer_OUTPUTS} ${BISON_config_parser_OUTPUTS}
-  configtype.cpp debuginfo.cpp objectrule.cpp typerule.cpp typerulelist.cpp
+  configtype.cpp debuginfo.cpp objectrule.cpp typerule.cpp typerulelist.cpp pch.cpp
 )
 
 target_link_libraries(config ${Boost_LIBRARIES} base) 
+
+include(PrecompiledHeader)
+add_precompiled_header(config pch.h FORCEINCLUDE)
 
 set_target_properties (
   config PROPERTIES

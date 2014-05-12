@@ -1,0 +1,17 @@
+#include "base/pch.h"
+#include "config/pch.h"
+#include "icinga/pch.h"
+#include "remote/pch.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/bind.hpp>
+#include <boost/foreach.hpp>
+#include <boost/function.hpp>
+#include <boost/regex.hpp>
+#include <boost/smart_ptr/make_shared.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/thread.hpp>
+#include <boost/tuple/tuple.hpp>

@@ -28,9 +28,13 @@ add_library(livestatus SHARED aggregator.cpp andfilter.cpp attributefilter.cpp
   minaggregator.cpp negatefilter.cpp orfilter.cpp query.cpp
   servicegroupstable.cpp servicestable.cpp statehisttable.cpp
   statustable.cpp stdaggregator.cpp sumaggregator.cpp table.cpp
-  timeperiodstable.cpp livestatus-type.cpp)
+  timeperiodstable.cpp livestatus-type.cpp pch.cpp
+)
 
 target_link_libraries(livestatus ${Boost_LIBRARIES} base config icinga remote)
+
+include(PrecompiledHeader)
+add_precompiled_header(livestatus pch.h FORCEINCLUDE)
 
 set_target_properties (
   livestatus PROPERTIES

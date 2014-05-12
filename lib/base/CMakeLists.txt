@@ -32,10 +32,13 @@ add_library(base SHARED
   statsfunction.cpp stdiostream.cpp stream.cpp streamlogger.cpp streamlogger.th
   sysloglogger.cpp sysloglogger.th tcpsocket.cpp threadpool.cpp timer.cpp
   tlsstream.cpp tlsutility.cpp type.cpp unixsocket.cpp utility.cpp value.cpp
-  value-operators.cpp workqueue.cpp
+  value-operators.cpp workqueue.cpp pch.cpp
 )
 
 target_link_libraries(base ${CMAKE_DL_LIBS} ${Boost_LIBRARIES} ${OPENSSL_LIBRARIES} cJSON mmatch)
+
+include(PrecompiledHeader)
+add_precompiled_header(base pch.h FORCEINCLUDE)
 
 if(HAVE_LIBEXECINFO)
   target_link_libraries(base execinfo)

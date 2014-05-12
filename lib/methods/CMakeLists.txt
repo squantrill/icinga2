@@ -24,10 +24,13 @@ endif()
 add_library(methods SHARED
   castfuncs.cpp clusterchecktask.cpp icingachecktask.cpp nullchecktask.cpp nulleventtask.cpp
   pluginchecktask.cpp plugineventtask.cpp pluginnotificationtask.cpp
-  randomchecktask.cpp timeperiodtask.cpp ${WindowsSources}
+  randomchecktask.cpp timeperiodtask.cpp pch.cpp ${WindowsSources}
 )
 
 target_link_libraries(methods ${Boost_LIBRARIES} base config icinga)
+
+include(PrecompiledHeader)
+add_precompiled_header(methods pch.h FORCEINCLUDE)
 
 set_target_properties (
   methods PROPERTIES

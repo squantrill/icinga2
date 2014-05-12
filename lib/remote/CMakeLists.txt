@@ -24,11 +24,14 @@ mkembedconfig_target(remote-type.conf remote-type.cpp)
 add_library(remote SHARED
   apiclient.cpp apifunction.cpp apilistener.cpp apilistener-sync.cpp
   apilistener.th authority.cpp endpoint.cpp endpoint.th jsonrpc.cpp
-  messageorigin.cpp remote-type.cpp zone.cpp zone.th
+  messageorigin.cpp remote-type.cpp zone.cpp zone.th pch.cpp
 )
 
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(remote ${Boost_LIBRARIES} base config)
+
+include(PrecompiledHeader)
+add_precompiled_header(remote pch.h FORCEINCLUDE)
 
 set_target_properties (
   remote PROPERTIES

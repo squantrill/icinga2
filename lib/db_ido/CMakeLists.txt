@@ -24,11 +24,14 @@ add_library(db_ido SHARED
   db_ido-type.cpp dbevents.cpp dbobject.cpp dbquery.cpp dbreference.cpp dbtype.cpp
   dbvalue.cpp endpointdbobject.cpp hostdbobject.cpp hostgroupdbobject.cpp
   servicedbobject.cpp servicegroupdbobject.cpp timeperioddbobject.cpp
-  userdbobject.cpp usergroupdbobject.cpp
+  userdbobject.cpp usergroupdbobject.cpp pch.cpp
 )
 
 include_directories(${Boost_INCLUDE_DIRS})
 target_link_libraries(db_ido ${Boost_LIBRARIES} base config icinga remote)
+
+include(PrecompiledHeader)
+add_precompiled_header(db_ido pch.h FORCEINCLUDE)
 
 set_target_properties (
   db_ido PROPERTIES

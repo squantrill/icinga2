@@ -1,0 +1,10 @@
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/bind/apply.hpp>
+#include <boost/foreach.hpp>
+#include <boost/function.hpp>
+#include <boost/signals2.hpp>
