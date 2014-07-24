@@ -32,8 +32,9 @@ global apache_binarys
 # Script Configuration
 # Services
 
-critical_services = ["mysql", "postmaster", "icinga", "ido2db"]
+critical_services = ["icinga"]
 apache_binarys = ['httpd', 'apache2', 'httpd2']
+db_binarys = ["mysql", "postmaster"]
 non_critical_service = ["snmptt", "npcd"]
 
 # Script Functions
@@ -103,11 +104,20 @@ def find_apache_binary(services):
     if apache_bin:
         critical_services.append(services)
 
+def find_db_binary(dbserver):
+    db_bin = which(dbserver)
+    if db_bin:
+        critical_services.append(dbserver)
+
+# Script Config
+
 for i in apache_binarys:
     find_apache_binary(i)
 
-# ICINGA CHECKS
+for db in db_binarys:
+    find_db_binary(db)
 
+# ICINGA CHECKS
 def check_crit_services():
     for i in critical_services:
         service_check(i)
