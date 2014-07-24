@@ -24,6 +24,9 @@ import sys
 import subprocess
 import re
 
+# global
+nobinary = [""]
+
 # Script Configuration
 
 critical_services = ["icinga2"]
@@ -32,14 +35,14 @@ db_binarys = ["mysql", "postmaster"]
 non_critical_service = ["snmptt", "npcd"]
 
 # TODO - Add custom_paths to which()
-custom_paths =['']
+custom_paths =[""]
 
 # Script Functions
-# TODO - Dont use Colors on NT
-class bcolors:
-    OK = '\033[92m [OK] \033[0m'
-    WARN = '\033[93m [WARN] \033[0m'
-    CRIT = '\033[91m [CRIT] \033[0m'
+
+#Status Color
+def get_distri():
+    os_name = os.name
+    return os_name
 
 def run_cmd(cmd, a="arg", b="service"):
     p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE)
@@ -100,39 +103,50 @@ def service_check(service):
                         return
                     print bcolors.CRIT, service, "- not running"
                     return
-
     print bcolors.WARN, service,  "- no binary found"
 
-def find_apache_binary(services):
-    apache_bin = which(services)
-    if apache_bin:
-        critical_services.append(services)
+    # if none of the provide Binarys where found
+    if "no_sql" in nobinary:
+        print bcolors.WARN,  "No SQL Binary Found.", db_binarys
 
-def find_db_binary(dbserver):
-    db_bin = which(dbserver)
+    if "no_apache" in nobinary:
+        print bcolors.WARN,  "No HTTP Binary Found.", apache_binarys
+
+for i in apache_binarys:
+    apache_bin = which(i)
+    if apache_bin:
+        critical_services.append(i)
+    else:
+        nobinary.append("no_apache")
+
+
+for i in db_binarys:
+    db_bin = which(i)
     if db_bin:
-        critical_services.append(dbserver)
+        critical_services.append(i)
+    else:
+        nobinary.append("no_sql")
 
 # Script Config
-for i in apache_binarys:
-    find_apache_binary(i)
-
-for db in db_binarys:
-    find_db_binary(db)
+# Color for Status / no Color on NT
+if get_distri() == "nt":
+    class bcolors:
+        OK = ''
+        WARN = ''
+        CRIT = ''
+else:
+    class bcolors:
+        OK = '\033[92m [OK] \033[0m'
+        WARN = '\033[93m [WARN] \033[0m'
+        CRIT = '\033[91m [CRIT] \033[0m'
 
 # ICINGA CHECKS
 def check_crit_services():
     for i in critical_services:
         service_check(i)
 
-def get_distri():
-    if os.name == 'nt':
-        print "Operating System: %s" % os.name
-        print "Windows Checks are not Tested!"
-
 # MAIN
 def main():
-    get_distri()
     check_crit_services()
 
 if __name__ == "__main__":
