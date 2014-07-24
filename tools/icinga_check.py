@@ -42,17 +42,19 @@ custom_paths =[""]
 class Notification:
     __colored = True
     def __init__(self):
-        self.__colored = False if get_distri() is "nt" else True
+        self.__colored = False if get_os() is "nt" else True
     def green(self, txt):
-        return '\033[92m %s \033[0m' % txt
+        return '\033[92m%s \033[0m' % txt
+    def blue(self, txt):
+        return '\033[94m%s \033[0m' % txt
     def yellow(self, txt):
-        return '\033[93m %s \033[0m' % txt
+        return '\033[93m%s \033[0m' % txt
     def red(self, txt):
-        return '\033[91m %s \033[0m' % txt
+        return '\033[91m%s \033[0m' % txt
     def ok(self, service, msg=" - is running"):
         state = ["[OK]", self.green]
         self.__print(state, service, msg)
-    def warn(self, service, msg=" - warning, i don't know"):
+    def warn(self, service, msg=" - binary not found"):
         state = ["[WARN]", self.yellow]
         self.__print(state, service, msg)
     def crit(self, service, msg=" - is not running"):
@@ -64,14 +66,28 @@ class Notification:
             service,
             msg)
 
+def get_os():
+        os_name = os.name
+        return os_name
+
 def get_distri():
-    os_name = os.name
-    return os_name
+    if which("lsb_release"):
+        get_lsb = run_cmd("lsb_release", "-d")
+        os_info = re.search("Description:\s+(.+)", get_lsb)
+        print "OS:", os_info.group(1)
+    else:
+        print os.name
+
+def run_cmd_long(cmd, a="arg1", b="arg2", c="arg3"):
+    p = subprocess.Popen([cmd, a, b, c], stdout=subprocess.PIPE)
+    cmdout, err = p.communicate()
+    return cmdout
 
 def run_cmd(cmd, a="arg", b="service"):
     p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
+
 
 def which(name, flags=os.X_OK):
     result = []
@@ -162,6 +178,15 @@ def check_crit_services():
 
 # MAIN
 def main():
+    notify = Notification()
+    print "##############################################################################"
+    print "#################     Icinga2 Check and Reporting Script     #################"
+    print "#################    Franz Holzer / Team Quality Assurance   #################"
+    print "##############################################################################"
+    print notify.blue("System Information:")
+    get_distri()
+
+    print notify.blue("Critical Service Checks:")
     check_crit_services()
 
 if __name__ == "__main__":
