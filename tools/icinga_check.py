@@ -38,8 +38,32 @@ non_critical_service = ["snmptt", "npcd"]
 custom_paths =[""]
 
 # Script Functions
+#Status Color Class
+class Notification:
+    __colored = True
+    def __init__(self):
+        self.__colored = False if get_distri() is "nt" else True
+    def green(self, txt):
+        return '\033[92m %s \033[0m' % txt
+    def yellow(self, txt):
+        return '\033[93m %s \033[0m' % txt
+    def red(self, txt):
+        return '\033[91m %s \033[0m' % txt
+    def ok(self, service, msg=" - is running"):
+        state = ["[OK]", self.green]
+        self.__print(state, service, msg)
+    def warn(self, service, msg=" - warning, i don't know"):
+        state = ["[WARN]", self.yellow]
+        self.__print(state, service, msg)
+    def crit(self, service, msg=" - is not running"):
+        state = ["[CRIT]", self.red]
+        self.__print(state, service, msg)
+    def __print(self, state, service, msg):
+        print "%s %s %s" % (
+            state[0] if self.__colored is False else state[1](state[0]),
+            service,
+            msg)
 
-#Status Color
 def get_distri():
     os_name = os.name
     return os_name
@@ -66,26 +90,29 @@ def which(name, flags=os.X_OK):
     return result
 
 def service_binary(service):
+    notify = Notification()
     exe_path = which(service)
     service_status(service)
     if which != None:
         for s in exe_path:
             if re.search(service, s) != None:
-                print bcolors.OK, service, "- binary found"
+                notify.ok(service, "- binary found")
                 break
         else:
-            print bcolors.CRIT, service, "- no binary found"
+            notify.warn(service, "- no binary found")
 
 def service_status(service):
+    notify = Notification()
     exe_status = run_cmd("ps","cax")
     if service in exe_status:
-        print  bcolors.OK, service, "- is running."
+        notify.ok(service)
         return True
     else:
-        print bcolors.CRIT, service, "- not running"
+        notify.crit(service)
         return False
 
 def service_check(service):
+    notify = Notification()
     exe_path = which(service)
     exe_status = run_cmd("ps","cax")
     if exe_path:
@@ -93,25 +120,26 @@ def service_check(service):
             if re.search(service, s) is not None:
                 if service in exe_status:
                     if service == "postmaster":
-                        print bcolors.OK, "postgresql - is running"
+                        notify.ok("postgresql")
                         return
-                    print bcolors.OK, service, "- is running"
+                    notify.ok(service)
                     return
                 else:
                     if service == "postmaster":
-                        print bcolors.CRIT, "postgresql - not running"
+                        notify.crit("postgresql")
                         return
-                    print bcolors.CRIT, service, "- not running"
+                    notify.crit(service)
                     return
-    print bcolors.WARN, service,  "- no binary found"
-
+    notify.warn(service)
     # if none of the provide Binarys where found
     if "no_sql" in nobinary:
-        print bcolors.WARN,  "No SQL Binary Found.", db_binarys
+        notify.warn("No SQL Binary Found.", db_binarys)
 
     if "no_apache" in nobinary:
-        print bcolors.WARN,  "No HTTP Binary Found.", apache_binarys
+        notify.warn("No HTTP Binary Found.", apache_binarys)
 
+
+# Script Config
 for i in apache_binarys:
     apache_bin = which(i)
     if apache_bin:
@@ -126,19 +154,6 @@ for i in db_binarys:
         critical_services.append(i)
     else:
         nobinary.append("no_sql")
-
-# Script Config
-# Color for Status / no Color on NT
-if get_distri() == "nt":
-    class bcolors:
-        OK = ''
-        WARN = ''
-        CRIT = ''
-else:
-    class bcolors:
-        OK = '\033[92m [OK] \033[0m'
-        WARN = '\033[93m [WARN] \033[0m'
-        CRIT = '\033[91m [CRIT] \033[0m'
 
 # ICINGA CHECKS
 def check_crit_services():
