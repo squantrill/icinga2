@@ -27,22 +27,21 @@ import re
 # Global Variables
 global critical_services
 global non_critical_services
+global apache_binarys
 
 # Script Configuration
-critical_services = ["httpd", "mysql", "postmaster", "icinga", "ido2db"]
+# Services
+
+critical_services = ["mysql", "postmaster", "icinga", "ido2db"]
+apache_binarys = ['httpd', 'apache2', 'httpd2']
 non_critical_service = ["snmptt", "npcd"]
 
-## apache 'httpd', 'apache2', 'httpd2'
-# Colors
+# Script Functions
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARN = '\033[93m'
-    CRIT = '\033[91m'
-    ENDC = '\033[0m'
+    OK = '\033[92m [OK] \033[0m'
+    WARN = '\033[93m [WARN] \033[0m'
+    CRIT = '\033[91m [CRIT] \033[0m'
 
-#Script Functions
 def run_cmd(cmd, a="arg", b="service"):
     p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE)
     cmdout, err = p.communicate()
@@ -70,18 +69,18 @@ def service_binary(service):
     if which != None:
         for s in exe_path:
             if re.search(service, s) != None:
-                print bcolors.OKGREEN + service + bcolors.ENDC, "- binary found"
+                print bcolors.OK, service, "- binary found"
                 break
         else:
-            print bcolors.CRIT + service + bcolors.ENDC, "- no binary found"
+            print bcolors.CRIT, service, "- no binary found"
 
 def service_status(service):
     exe_status = run_cmd("ps","cax")
     if service in exe_status:
-        print  bcolors.OKGREEN + service + bcolors.ENDC, "- is running."
+        print  bcolors.OK, service, "- is running."
         return True
     else:
-        print bcolors.CRIT + service + bcolors.ENDC, "- not running"
+        print bcolors.CRIT, service, "- not running"
         return False
 
 def service_check(service):
@@ -91,16 +90,23 @@ def service_check(service):
         for s in exe_path:
             if re.search(service, s) is not None:
                 if service in exe_status:
-                    print bcolors.OKGREEN + service + bcolors.ENDC, "- is running."
+                    print bcolors.OK, service, "- is running."
                     return
                 else:
-                    print bcolors.CRIT + service + bcolors.ENDC, "- not running"
+                    print bcolors.CRIT, service, "- not running"
                     return
 
-    print service, "- no binary found"
+    print bcolors.WARN, service,  "- no binary found"
+
+def find_apache_binary(services):
+    apache_bin = which(services)
+    if apache_bin:
+        critical_services.append(services)
+
+for i in apache_binarys:
+    find_apache_binary(i)
 
 # ICINGA CHECKS
-# SERVICE CHECK - Test
 
 def check_crit_services():
     for i in critical_services:
