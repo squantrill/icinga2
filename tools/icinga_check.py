@@ -24,20 +24,18 @@ import sys
 import subprocess
 import re
 
-# Global Variables
-global critical_services
-global non_critical_services
-global apache_binarys
-
 # Script Configuration
-# Services
 
-critical_services = ["icinga"]
+critical_services = ["icinga2"]
 apache_binarys = ['httpd', 'apache2', 'httpd2']
 db_binarys = ["mysql", "postmaster"]
 non_critical_service = ["snmptt", "npcd"]
 
+# TODO - Add custom_paths to which()
+custom_paths =['']
+
 # Script Functions
+# TODO - Dont use Colors on NT
 class bcolors:
     OK = '\033[92m [OK] \033[0m'
     WARN = '\033[93m [WARN] \033[0m'
@@ -91,9 +89,15 @@ def service_check(service):
         for s in exe_path:
             if re.search(service, s) is not None:
                 if service in exe_status:
-                    print bcolors.OK, service, "- is running."
+                    if service == "postmaster":
+                        print bcolors.OK, "postgresql - is running"
+                        return
+                    print bcolors.OK, service, "- is running"
                     return
                 else:
+                    if service == "postmaster":
+                        print bcolors.CRIT, "postgresql - not running"
+                        return
                     print bcolors.CRIT, service, "- not running"
                     return
 
@@ -110,7 +114,6 @@ def find_db_binary(dbserver):
         critical_services.append(dbserver)
 
 # Script Config
-
 for i in apache_binarys:
     find_apache_binary(i)
 
