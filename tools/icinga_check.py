@@ -61,6 +61,9 @@ class Notification:
     def __print(self, state, service, msg):
         print "%s %s %s" % (state, service, msg)
 
+def chomp(s):
+    return s.rstrip('\n')
+
 def get_os():
         os_name = os.name
         return os_name
@@ -172,6 +175,9 @@ def get_distri():
         print "OS:", platform.platform()
     else:
         print "OS: unknown"
+    if which("uname"):
+        kernel = run_cmd("uname", "-rp")
+        print "Kernel:", chomp(kernel)
 
 def check_crit_services():
     for i in critical_services:
