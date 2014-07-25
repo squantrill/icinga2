@@ -24,6 +24,8 @@ import subprocess
 import re
 import platform
 import locale
+import math
+from itertools import islice
 
 # global
 nobinary = [""]
@@ -48,8 +50,8 @@ class Notification:
         return self.__color('\033[93m%s\033[0m', txt)
     def blue(self, txt):
         return self.__color('\033[94m%s\033[0m', txt)
-    def white(self, txt):
-        return self.__color('\033[97m%s\033[0m', txt)
+    def bold(self, txt):
+        return self.__color('\033[4m%s\033[0m', txt)
     def red(self, txt):
         return self.__color('\033[91m%s\033[0m', txt)
     def ok(self, service, msg=" - is running"):
@@ -62,6 +64,14 @@ class Notification:
         return color % text if self.__colored is True else text
     def __print(self, state, service, msg):
         print "%s %s %s" % (state, service, msg)
+
+#TODO SLURP Function see -> def get_distri():
+#with open("/etc/redhat-release") as x: os_info = x.read()
+def per_line(lis, n):
+    it = iter(lis)
+    le = float(len(lis))
+    for _ in xrange(int(math.ceil(le/n))):
+        yield ", ".join(islice(it, n))
 
 def chomp(s):
     return s.rstrip('\n')
@@ -224,18 +234,28 @@ def sql_info():
             print "DB Server Ver.:", chomp(output)
 
 def icinga_version():
+    notify = Notification()
     if which("icinga2"):
         output = run_cmd("icinga2", "-V")
         icingaver = re.search(".+\(\w+..(.+).", output)
         print "Icinga Ver.:", icingaver.group(1)
 
+def get_enabled_features():
+    notify = Notification()
+    if which("icinga2"):
+        output = run_cmd("icinga2-enable-feature", "")
+        enabled_f = re.search("\s+Enabled.features..(.+)", output)
+        features = enabled_f.group(1).split(" ")
+        print notify.bold("Enabled Features:")
+        for feature in per_line(features, 4):
+            print feature
 # MAIN
 def main():
     notify = Notification()
-    print "########################################################################"
-    print "##############     Icinga2 Check and Reporting Script     ##############"
-    print "##############    Franz Holzer / Team Quality Assurance   ##############"
-    print "########################################################################"
+    print "##################################################################################"
+    print "###################     Icinga2 Check and Reporting Script     ###################"
+    print "###################    Franz Holzer / Team Quality Assurance   ###################"
+    print "##################################################################################"
     print notify.blue("System Information:")
     get_distri()
     selinux()
@@ -248,6 +268,7 @@ def main():
     print ""
     print notify.blue("Icinga Checks:")
     icinga_version()
+    get_enabled_features()
     print ""
     print notify.blue("Critical Service Checks:")
     check_crit_services()
