@@ -213,7 +213,7 @@ def apache_info():
         if apache_path:
             apache_bin = i
             output = run_cmd(apache_bin, "-V")
-            short = phpver = re.search(".erver..ersion:.(.+)", output)
+            short = re.search(".erver..ersion:.(.+)", output)
             print "Apache Ver.:", short.group(1)
 
 def sql_info():
