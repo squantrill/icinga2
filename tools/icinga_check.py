@@ -60,7 +60,6 @@ class Notification:
         self.__print(self.red("[CRIT]"), service, msg)
     def __color(self, color, text):
         return color % text if self.__colored is True else text
-
     def __print(self, state, service, msg):
         print "%s %s %s" % (state, service, msg)
 
@@ -119,6 +118,7 @@ def service_status(service):
         notify.crit(service)
         return False
 
+# TODO - No checks tested if Postgres AND Mysql is installed and used at once
 def service_check(service):
     notify = Notification()
     exe_path = which(service)
@@ -162,7 +162,7 @@ for i in db_binarys:
     else:
         nobinary.append("no_sql")
 
-# ICINGA CHECKS
+#CHECKS
 def get_distri():
     if which("lsb_release"):
         get_lsb = run_cmd("lsb_release", "-d")
@@ -202,7 +202,6 @@ def selinux():
         print "Selinux Status:", chomp(output)
 
 def get_locale():
-    notify = Notification()
     output = locale.getdefaultlocale()
     LANG = ','.join(output)
     print "LANG:", LANG
@@ -222,7 +221,13 @@ def sql_info():
         if sql_path:
             sql_bin = i
             output = run_cmd(sql_bin, "-V")
-            print "DB Server Ver.:", output
+            print "DB Server Ver.:", chomp(output)
+
+def icinga_version():
+    if which("icinga2"):
+        output = run_cmd("icinga2", "-V")
+        icingaver = re.search(".+\(\w+..(.+).", output)
+        print "Icinga Ver.:", icingaver.group(1)
 
 # MAIN
 def main():
@@ -241,8 +246,12 @@ def main():
     apache_info()
     sql_info()
     print ""
+    print notify.blue("Icinga Checks:")
+    icinga_version()
+    print ""
     print notify.blue("Critical Service Checks:")
     check_crit_services()
+
 
 if __name__ == "__main__":
     main()
