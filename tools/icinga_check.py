@@ -193,6 +193,11 @@ def php_ver():
         phpver = re.search("PHP.(\d.\d.\d)", output)
         print "PHP Ver.:", phpver.group(1)
 
+def selinux():
+    if which("selinuxenabled"):
+        output = run_cmd("getenforce")
+        print "Selinux Status:", chomp(output)
+
 # MAIN
 def main():
     notify = Notification()
@@ -204,6 +209,7 @@ def main():
     get_distri()
     python_ver()
     php_ver()
+    selinux()
     print ""
     print notify.blue("Critical Service Checks:")
     check_crit_services()
