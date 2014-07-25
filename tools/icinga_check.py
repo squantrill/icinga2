@@ -23,6 +23,7 @@ import sys
 import subprocess
 import re
 import platform
+import locale
 
 # global
 nobinary = [""]
@@ -42,16 +43,18 @@ class Notification:
     def __init__(self):
         self.__colored = False if get_os() is "nt" else True
     def green(self, txt):
-        return self.__color('\033[92m %s \033[0m', txt)
+        return self.__color('\033[92m%s \033[0m', txt)
     def yellow(self, txt):
-        return self.__color('\033[93m %s \033[0m', txt)
+        return self.__color('\033[93m%s \033[0m', txt)
     def blue(self, txt):
-        return self.__color('\033[94m %s \033[0m', txt)
+        return self.__color('\033[94m%s \033[0m', txt)
+    def white(self, txt):
+        return self.__color('\033[97m%s \033[0m', txt)
     def red(self, txt):
-        return self.__color('\033[91m %s \033[0m', txt)
+        return self.__color('\033[91m%s \033[0m', txt)
     def ok(self, service, msg=" - is running"):
         self.__print(self.green("[OK]"), service, msg)
-    def warn(self, service, msg=" - warning, i don't know"):
+    def warn(self, service, msg=" - no binary found"):
         self.__print(self.yellow("[WARN]"), service, msg)
     def crit(self, service, msg=" - is not running"):
         self.__print(self.red("[CRIT]"), service, msg)
@@ -198,6 +201,11 @@ def selinux():
         output = run_cmd("getenforce")
         print "Selinux Status:", chomp(output)
 
+def get_locale():
+    output = locale.getdefaultlocale()
+    LANG = ','.join(output)
+    print "LANG:", LANG
+
 # MAIN
 def main():
     notify = Notification()
@@ -207,6 +215,7 @@ def main():
     print "########################################################################"
     print notify.blue("System Information:")
     get_distri()
+    get_locale()
     python_ver()
     php_ver()
     selinux()
