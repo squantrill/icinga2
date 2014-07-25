@@ -43,15 +43,15 @@ class Notification:
     def __init__(self):
         self.__colored = False if get_os() is "nt" else True
     def green(self, txt):
-        return self.__color('\033[92m%s \033[0m', txt)
+        return self.__color('\033[92m%s\033[0m', txt)
     def yellow(self, txt):
-        return self.__color('\033[93m%s \033[0m', txt)
+        return self.__color('\033[93m%s\033[0m', txt)
     def blue(self, txt):
-        return self.__color('\033[94m%s \033[0m', txt)
+        return self.__color('\033[94m%s\033[0m', txt)
     def white(self, txt):
-        return self.__color('\033[97m%s \033[0m', txt)
+        return self.__color('\033[97m%s\033[0m', txt)
     def red(self, txt):
-        return self.__color('\033[91m%s \033[0m', txt)
+        return self.__color('\033[91m%s\033[0m', txt)
     def ok(self, service, msg=" - is running"):
         self.__print(self.green("[OK]"), service, msg)
     def warn(self, service, msg=" - no binary found"):
@@ -202,9 +202,27 @@ def selinux():
         print "Selinux Status:", chomp(output)
 
 def get_locale():
+    notify = Notification()
     output = locale.getdefaultlocale()
     LANG = ','.join(output)
     print "LANG:", LANG
+
+def apache_info():
+    for i in apache_binarys:
+        apache_path = which(i)
+        if apache_path:
+            apache_bin = i
+            output = run_cmd(apache_bin, "-V")
+            short = phpver = re.search(".erver..ersion:.(.+)", output)
+            print "Apache Ver.:", short.group(1)
+
+def sql_info():
+    for i in db_binarys:
+        sql_path = which(i)
+        if sql_path:
+            sql_bin = i
+            output = run_cmd(sql_bin, "-V")
+            print "DB Server Ver.:", output
 
 # MAIN
 def main():
@@ -215,10 +233,13 @@ def main():
     print "########################################################################"
     print notify.blue("System Information:")
     get_distri()
+    selinux()
     get_locale()
+    print ""
     python_ver()
     php_ver()
-    selinux()
+    apache_info()
+    sql_info()
     print ""
     print notify.blue("Critical Service Checks:")
     check_crit_services()
