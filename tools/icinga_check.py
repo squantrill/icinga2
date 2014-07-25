@@ -42,27 +42,25 @@ class Notification:
     def __init__(self):
         self.__colored = False if get_os() is "nt" else True
     def green(self, txt):
-        return '\033[92m%s \033[0m' % txt
-    def blue(self, txt):
-        return '\033[94m%s \033[0m' % txt
+        return self.__color('\033[92m %s \033[0m', txt)
     def yellow(self, txt):
-        return '\033[93m%s \033[0m' % txt
+        return self.__color('\033[93m %s \033[0m', txt)
+    def blue(self, txt):
+        return self.__color('\033[94m %s \033[0m', txt)
     def red(self, txt):
-        return '\033[91m%s \033[0m' % txt
+        return self.__color('\033[91m %s \033[0m', txt)
     def ok(self, service, msg=" - is running"):
-        state = ["[OK]", self.green]
-        self.__print(state, service, msg)
-    def warn(self, service, msg=" - binary not found"):
-        state = ["[WARN]", self.yellow]
-        self.__print(state, service, msg)
+        self.__print(self.green("[OK]"), service, msg)
+    def warn(self, service, msg=" - warning, i don't know"):
+        self.__print(self.yellow("[WARN]"), service, msg)
     def crit(self, service, msg=" - is not running"):
-        state = ["[CRIT]", self.red]
-        self.__print(state, service, msg)
+        self.__print(self.red("[CRIT]"), service, msg)
+    def __color(self, color, text):
+        return color % text if self.__colored is True else text
+
     def __print(self, state, service, msg):
-        print "%s %s %s" % (
-            state[0] if self.__colored is False else state[1](state[0]),
-            service,
-            msg)
+        print "%s %s %s" % (state, service, msg)
+
 
 def get_os():
         os_name = os.name
