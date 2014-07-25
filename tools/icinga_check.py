@@ -23,6 +23,7 @@ import os
 import sys
 import subprocess
 import re
+import platform
 
 # global
 nobinary = [""]
@@ -69,14 +70,6 @@ class Notification:
 def get_os():
         os_name = os.name
         return os_name
-
-def get_distri():
-    if which("lsb_release"):
-        get_lsb = run_cmd("lsb_release", "-d")
-        os_info = re.search("Description:\s+(.+)", get_lsb)
-        print "OS:", os_info.group(1)
-    else:
-        print os.name
 
 def run_cmd_long(cmd, a="arg1", b="arg2", c="arg3"):
     p = subprocess.Popen([cmd, a, b, c], stdout=subprocess.PIPE)
@@ -172,6 +165,20 @@ for i in db_binarys:
         nobinary.append("no_sql")
 
 # ICINGA CHECKS
+def get_distri():
+    if which("lsb_release"):
+        get_lsb = run_cmd("lsb_release", "-d")
+        os_info = re.search("Description:\s+(.+)", get_lsb)
+        print "OS:", os_info.group(1)
+    elif os.path.isfile("/etc/redhat-release"):
+        with open("/etc/redhat-release") as x: os_info = x.read()
+        print "OS:", os_info
+    elif os.path.isfile("/etc/debian_version"):
+        with open("/etc/debian_version") as x: os_info = x.read()
+        print "OS:", os_info
+    elif which("ping.exe"):
+        print "OS:", platform.platform()
+
 def check_crit_services():
     for i in critical_services:
         service_check(i)
@@ -179,10 +186,10 @@ def check_crit_services():
 # MAIN
 def main():
     notify = Notification()
-    print "##############################################################################"
-    print "#################     Icinga2 Check and Reporting Script     #################"
-    print "#################    Franz Holzer / Team Quality Assurance   #################"
-    print "##############################################################################"
+    print "########################################################################"
+    print "##############     Icinga2 Check and Reporting Script     ##############"
+    print "##############    Franz Holzer / Team Quality Assurance   ##############"
+    print "########################################################################"
     print notify.blue("System Information:")
     get_distri()
 
