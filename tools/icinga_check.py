@@ -18,7 +18,6 @@
 # * along with this program; if not, write to the Free Software Foundation     *
 # * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.             *
 # *****************************************************************************/
-
 import os
 import sys
 import subprocess
@@ -29,7 +28,6 @@ import platform
 nobinary = [""]
 
 # Script Configuration
-
 critical_services = ["icinga2"]
 apache_binarys = ['httpd', 'apache2', 'httpd2']
 db_binarys = ["mysql", "postmaster"]
@@ -39,7 +37,6 @@ non_critical_service = ["snmptt", "npcd"]
 custom_paths =[""]
 
 # Script Functions
-#Status Color Class
 class Notification:
     __colored = True
     def __init__(self):
@@ -80,7 +77,6 @@ def run_cmd(cmd, a="arg", b="service"):
     p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
-
 
 def which(name, flags=os.X_OK):
     result = []
@@ -147,7 +143,6 @@ def service_check(service):
     if "no_apache" in nobinary:
         notify.warn("No HTTP Binary Found.", apache_binarys)
 
-
 # Script Config
 for i in apache_binarys:
     apache_bin = which(i)
@@ -185,6 +180,10 @@ def check_crit_services():
     for i in critical_services:
         service_check(i)
 
+def python_ver():
+    py_ver = platform.python_version()
+    print "Python Ver.:", py_ver
+
 # MAIN
 def main():
     notify = Notification()
@@ -194,7 +193,7 @@ def main():
     print "########################################################################"
     print notify.blue("System Information:")
     get_distri()
-
+    python_ver()
     print notify.blue("Critical Service Checks:")
     check_crit_services()
 
