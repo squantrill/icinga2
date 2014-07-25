@@ -50,10 +50,12 @@ class Notification:
         return self.__color('\033[93m%s\033[0m', txt)
     def blue(self, txt):
         return self.__color('\033[94m%s\033[0m', txt)
-    def bold(self, txt):
+    def underline(self, txt):
         return self.__color('\033[4m%s\033[0m', txt)
     def red(self, txt):
         return self.__color('\033[91m%s\033[0m', txt)
+    def darkcyan(self, txt):
+        return self.__color('\033[36m%s\033[0m', txt)
     def ok(self, service, msg=" - is running"):
         self.__print(self.green("[OK]"), service, msg)
     def warn(self, service, msg=" - no binary found"):
@@ -65,8 +67,11 @@ class Notification:
     def __print(self, state, service, msg):
         print "%s %s %s" % (state, service, msg)
 
-#TODO SLURP Function see -> def get_distri():
-#with open("/etc/redhat-release") as x: os_info = x.read()
+def slurp(input_file):
+    with open(input_file) as x:
+        output = x.read()
+        return chomp(output)
+
 def per_line(lis, n):
     it = iter(lis)
     le = float(len(lis))
@@ -174,15 +179,15 @@ for i in db_binarys:
 
 #CHECKS
 def get_distri():
-    if which("lsb_release"):
+    if which("lsb_releasee"):
         get_lsb = run_cmd("lsb_release", "-d")
         os_info = re.search("Description:\s+(.+)", get_lsb)
         print "OS:", os_info.group(1)
     elif os.path.isfile("/etc/redhat-release"):
-        with open("/etc/redhat-release") as x: os_info = x.read()
+        os_info = slurp("/etc/redhat-release")
         print "OS:", os_info
     elif os.path.isfile("/etc/debian_version"):
-        with open("/etc/debian_version") as x: os_info = x.read()
+        os_info = slurp("/etc/debian_version")
         print "OS:", os_info
     elif which("ping.exe"):
         print "OS:", platform.platform()
@@ -246,7 +251,7 @@ def get_enabled_features():
         output = run_cmd("icinga2-enable-feature", "")
         enabled_f = re.search("\s+Enabled.features..(.+)", output)
         features = enabled_f.group(1).split(" ")
-        print notify.bold("Enabled Features:")
+        print notify.underline("Enabled Features:")
         for feature in per_line(features, 4):
             print feature
 # MAIN
