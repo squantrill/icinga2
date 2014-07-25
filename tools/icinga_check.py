@@ -61,7 +61,6 @@ class Notification:
     def __print(self, state, service, msg):
         print "%s %s %s" % (state, service, msg)
 
-
 def get_os():
         os_name = os.name
         return os_name
@@ -182,6 +181,12 @@ def python_ver():
     py_ver = platform.python_version()
     print "Python Ver.:", py_ver
 
+def php_ver():
+    if which("php"):
+        output = run_cmd("php", "-v")
+        phpver = re.search("PHP.(\d.\d.\d)", output)
+        print "PHP Ver.:", phpver.group(1)
+
 # MAIN
 def main():
     notify = Notification()
@@ -192,6 +197,8 @@ def main():
     print notify.blue("System Information:")
     get_distri()
     python_ver()
+    php_ver()
+    print ""
     print notify.blue("Critical Service Checks:")
     check_crit_services()
 
