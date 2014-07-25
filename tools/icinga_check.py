@@ -178,6 +178,8 @@ def get_distri():
         print "OS:", os_info
     elif which("ping.exe"):
         print "OS:", platform.platform()
+    else:
+        print "OS: unknown"
 
 def check_crit_services():
     for i in critical_services:
