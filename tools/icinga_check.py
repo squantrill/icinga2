@@ -27,8 +27,8 @@ import locale
 import math
 from itertools import islice
 
-# global
-nobinary = [""]
+#global
+script_warning = []
 
 # Script Configuration
 critical_services = ["icinga2"]
@@ -154,28 +154,27 @@ def service_check(service):
                     notify.crit(service)
                     return
     notify.warn(service)
-    # if none of the provide Binarys where found
-    if "no_sql" in nobinary:
-        notify.warn("No SQL Binary Found.", db_binarys)
-
-    if "no_apache" in nobinary:
-        notify.warn("No HTTP Binary Found.", apache_binarys)
 
 # Script Config
-for i in apache_binarys:
-    apache_bin = which(i)
-    if apache_bin:
-        critical_services.append(i)
-    else:
-        nobinary.append("no_apache")
+def find_apache_bin():
+    global script_warning
+    for i in apache_binarys:
+        apache_bin = which(i)
+        if apache_bin:
+            critical_services.append(i)
+            return
+    script_warning.append("No Apache Binary found:")
+    script_warning.append(apache_binarys)
 
-
-for i in db_binarys:
-    db_bin = which(i)
-    if db_bin:
-        critical_services.append(i)
-    else:
-        nobinary.append("no_sql")
+def find_sql_bin():
+    global script_warning
+    for i in db_binarys:
+        db_bin = which(i)
+        if db_bin:
+            critical_services.append(i)
+            return
+    script_warning.append("No SQL Binary found:")
+    script_warning.append(db_binarys)
 
 #CHECKS
 def get_distri():
@@ -198,7 +197,13 @@ def get_distri():
         print "Kernel:", chomp(kernel)
 
 def check_crit_services():
+    find_sql_bin()
+    find_apache_bin()
     for i in critical_services:
+        service_check(i)
+
+def check_non_critical_service():
+    for i in non_critical_service:
         service_check(i)
 
 def python_ver():
@@ -254,13 +259,21 @@ def get_enabled_features():
         print notify.underline("Enabled Features:")
         for feature in per_line(features, 4):
             print feature
-# MAIN
+
+def script_warnings():
+    for i in script_warning:
+        print i
+
+# MAIN Output
 def main():
     notify = Notification()
     print "##################################################################################"
     print "###################     Icinga2 Check and Reporting Script     ###################"
     print "###################    Franz Holzer / Team Quality Assurance   ###################"
     print "##################################################################################"
+    print notify.blue("Script Warnings:")
+    script_warnings()
+    print ""
     print notify.blue("System Information:")
     get_distri()
     selinux()
@@ -275,9 +288,11 @@ def main():
     icinga_version()
     get_enabled_features()
     print ""
-    print notify.blue("Critical Service Checks:")
+    print notify.blue("Essential Service Checks:")
     check_crit_services()
-
+    print ""
+    print notify.blue("non-critical Service Checks:")
+    check_non_critical_service()
 
 if __name__ == "__main__":
     main()
