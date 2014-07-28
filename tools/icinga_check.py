@@ -34,7 +34,9 @@ script_warning = []
 critical_services = ["icinga2"]
 apache_binarys = ['httpd', 'apache2', 'httpd2']
 db_binarys = ["mysql", "postmaster"]
-non_critical_service = ["snmptt", "npcd"]
+non_critical_services = ["snmptt", "npcd"]
+#the "real" non Critical Services List
+non_crit_services = []
 
 # TODO - Add custom_paths to which()
 custom_paths =[""]
@@ -163,8 +165,7 @@ def find_apache_bin():
         if apache_bin:
             critical_services.append(i)
             return
-    script_warning.append("No Apache Binary found:")
-    script_warning.append(apache_binarys)
+    script_warning.extend(["No Apache Binary found:",apache_binarys, "\n"])
 
 def find_sql_bin():
     global script_warning
@@ -173,8 +174,16 @@ def find_sql_bin():
         if db_bin:
             critical_services.append(i)
             return
-    script_warning.append("No SQL Binary found:")
-    script_warning.append(db_binarys)
+    script_warning.extend(["No SQL Binary found:", db_binarys, "\n"])
+
+def find_non_crit_service_bin():
+    global script_warning
+    for i in non_critical_services:
+        non_crit_serv = which(i)
+        if non_crit_serv:
+            non_crit_services.append(i)
+            return
+    script_warning.extend(["No non-critical Service Binary found:",non_critical_services, "\n"])
 
 #CHECKS
 def get_distri():
@@ -197,13 +206,11 @@ def get_distri():
         print "Kernel:", chomp(kernel)
 
 def check_crit_services():
-    find_sql_bin()
-    find_apache_bin()
     for i in critical_services:
         service_check(i)
 
 def check_non_critical_service():
-    for i in non_critical_service:
+    for i in non_crit_services:
         service_check(i)
 
 def python_ver():
@@ -262,10 +269,17 @@ def get_enabled_features():
 
 def script_warnings():
     for i in script_warning:
-        print i
+        #print i,
+        print i,
+
+def pre_script_config():
+    find_non_crit_service_bin()
+    find_sql_bin()
+    find_apache_bin()
 
 # MAIN Output
 def main():
+    pre_script_config()
     notify = Notification()
     print "##################################################################################"
     print "###################     Icinga2 Check and Reporting Script     ###################"
