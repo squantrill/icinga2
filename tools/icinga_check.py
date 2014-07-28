@@ -38,6 +38,9 @@ non_critical_services = ["snmptt", "npcd"]
 #the "real" non Critical Services List
 non_crit_services = []
 
+#Icinga2 Directory
+icinga2_locations = ["/etc/icinga2", "/opt/icinga2/etc", "/usr/local/icinga2/etc"]
+
 # TODO - Add custom_paths to which()
 custom_paths =[""]
 
@@ -185,6 +188,12 @@ def find_non_crit_service_bin():
             return
     script_warning.extend(["No non-critical Service Binary found:",non_critical_services, "\n"])
 
+def get_icinga2_dir():
+    for l in icinga2_locations:
+        if os.path.isfile("%s/icinga2.conf" % l):
+               return l
+    script_warning.extend(["No Icinga2 Directory found:",icinga2_locations, "\n"])
+
 #CHECKS
 def get_distri():
     if which("lsb_releasee"):
@@ -269,14 +278,18 @@ def get_enabled_features():
 
 def script_warnings():
     for i in script_warning:
-        #print i,
         print i,
 
 def pre_script_config():
+    get_icinga2_dir()
     find_non_crit_service_bin()
     find_sql_bin()
     find_apache_bin()
 
+
+def get_constants():
+    if os.path.isfile(icingadir+'/constants.conf'):
+        os_info = slurp("/etc/debian_version")
 # MAIN Output
 def main():
     pre_script_config()
@@ -307,6 +320,5 @@ def main():
     print ""
     print notify.blue("non-critical Service Checks:")
     check_non_critical_service()
-
 if __name__ == "__main__":
     main()
