@@ -90,8 +90,8 @@ def get_os():
         os_name = os.name
         return os_name
 
-def run_cmd_long(cmd, a="arg1", b="arg2", c="arg3"):
-    p = subprocess.Popen([cmd, a, b, c], stdout=subprocess.PIPE)
+def run_check(check, a="check_argument", b="value", c="", d=""):
+    p = subprocess.Popen(["sudo", "-u", "icinga", check, a, b, c, d], stdout=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
 
@@ -286,10 +286,24 @@ def pre_script_config():
     find_sql_bin()
     find_apache_bin()
 
+def get_constants_output():
+    idir = get_icinga2_dir()
+    if os.path.isfile("%s/constants.conf" % idir):
+        output = slurp("%s/constants.conf" % idir)
+        return output
 
-def get_constants():
-    if os.path.isfile(icingadir+'/constants.conf'):
-        os_info = slurp("/etc/debian_version")
+def get_plugin_path():
+    output = get_constants_output()
+    if output:
+        path = re.search("const.+PluginDir.+\"(.+)\"", output)
+        return path.group(1)
+
+def check_local_disk():
+    pluginpath = get_plugin_path()
+    if pluginpath:
+        output = run_check("%s/check_disk" % pluginpath, "-c", "5")
+        print "local check_disk Test:", output[:33]
+
 # MAIN Output
 def main():
     pre_script_config()
@@ -315,10 +329,14 @@ def main():
     icinga_version()
     get_enabled_features()
     print ""
+    check_local_disk()
+    print ""
     print notify.blue("Essential Service Checks:")
     check_crit_services()
     print ""
     print notify.blue("non-critical Service Checks:")
     check_non_critical_service()
+
+
 if __name__ == "__main__":
     main()
