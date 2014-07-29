@@ -48,7 +48,10 @@ custom_paths =[""]
 class Notification:
     __colored = True
     def __init__(self):
-        self.__colored = False if get_os() is "nt" else True
+        if get_os() is "nt":
+            self.__colored = False
+        else:
+            self.__colored = True
     def green(self, txt):
         return self.__color('\033[92m%s\033[0m', txt)
     def yellow(self, txt):
@@ -68,14 +71,20 @@ class Notification:
     def crit(self, service, msg=" - is not running"):
         self.__print(self.red("[CRIT]"), service, msg)
     def __color(self, color, text):
-        return color % text if self.__colored is True else text
+        if self.__colored is True:
+            return color % text
+        else:
+            return text
     def __print(self, state, service, msg):
         print "%s %s %s" % (state, service, msg)
 
 def slurp(input_file):
-    with open(input_file) as x:
-        output = x.read()
-        return chomp(output)
+    x = open(input_file)
+    try:
+       output = x.read()
+       return chomp(output)
+    finally:
+        x.close()
 
 def per_line(lis, n):
     it = iter(lis)
@@ -95,7 +104,7 @@ def run_check(check, a="check_argument", b="value", c="", d=""):
     cmdout, err = p.communicate()
     return cmdout
 
-def run_cmd(cmd, a="arg", b="service"):
+def run_cmd(cmd, a="arg"):
     p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
@@ -257,7 +266,7 @@ def sql_info():
         if sql_path:
             sql_bin = i
             output = run_cmd(sql_bin, "-V")
-            print "DB Server Ver.:", chomp(output)
+            print "DB Server Ver.:", chomp(output[:32])
 
 def icinga_version():
     notify = Notification()
@@ -302,16 +311,15 @@ def check_local_disk():
     pluginpath = get_plugin_path()
     if pluginpath:
         output = run_check("%s/check_disk" % pluginpath, "-c", "5")
-        print "local check_disk Test:", output[:33]
+        print "local check_disk Test:", output[:32]
 
 # MAIN Output
 def main():
     pre_script_config()
     notify = Notification()
-    print "##################################################################################"
-    print "###################     Icinga2 Check and Reporting Script     ###################"
-    print "###################    Franz Holzer / Team Quality Assurance   ###################"
-    print "##################################################################################"
+    print "====================================================="
+    print " Icinga2 Verify Script:"
+    print "====================================================="
     print notify.blue("Script Warnings:")
     script_warnings()
     print ""
