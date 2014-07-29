@@ -189,7 +189,6 @@ void GraphiteWriter::SanitizeMetric(String& str)
 {
 	boost::replace_all(str, " ", "_");
 	boost::replace_all(str, ".", "_");
-	boost::replace_all(str, "-", "_");
 	boost::replace_all(str, "\\", "_");
 	boost::replace_all(str, "/", "_");
 }
