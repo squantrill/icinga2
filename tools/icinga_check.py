@@ -93,19 +93,22 @@ def per_line(lis, n):
         yield ", ".join(islice(it, n))
 
 def chomp(s):
-    return s.rstrip('\n')
+    if s:
+        return s.rstrip('\n')
+    else:
+        return
 
 def get_os():
         os_name = os.name
         return os_name
 
 def run_check(check, a="check_argument", b="value", c="", d=""):
-    p = subprocess.Popen(["sudo", "-u", "icinga", check, a, b, c, d], stdout=subprocess.PIPE)
+    p = subprocess.Popen(["sudo", "-u", "icinga", check, a, b, c, d], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
 
 def run_cmd(cmd, a="arg"):
-    p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE)
+    p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
 
