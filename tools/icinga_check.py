@@ -105,11 +105,10 @@ def get_os():
         return os_name
 
 def query_pgsql(select_string):
-    os.environ['PGPASSWORD'] = 'icinga'
-    user ='icinga'
-    password ='icinga'
-    database ='icinga'
-    sql_check = subprocess.Popen(['psql', '-U', user, '-d', database, '-w' , '-c', select_string], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+    output = get_icingafile_output("/features-available/ido-pgsql.conf")
+    pgsql_data = re.search("\"ido-pgsql\".+user.+\"(?P<user>.+)\".+password.+\"(?P<password>.+)\".+host.+\"(?P<host>.+)\".+database.+\"(?P<database>.+)\"", output, re.S)
+    os.environ['PGPASSWORD'] = pgsql_data.group("password")
+    sql_check = subprocess.Popen(['psql', '-U', pgsql_data.group("user"), '-d', pgsql_data.group("database"), '-h', pgsql_data.group("host"), '-w' , '-c', select_string], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
     sqlout = sql_check.communicate()[0]
     return sqlout
 
@@ -303,12 +302,6 @@ def script_warnings():
     for i in script_warning:
         print i,
 
-def get_constants_output():
-    idir = get_icinga2_dir()
-    if os.path.isfile("%s/constants.conf" % idir):
-        output = slurp("%s/constants.conf" % idir)
-        return output
-
 def get_icingafile_output(path_to_file):
     idir = get_icinga2_dir()
     if os.path.isfile("%s%s" % (idir, path_to_file)):
@@ -316,7 +309,6 @@ def get_icingafile_output(path_to_file):
         return output
 
 def get_plugin_path():
-    #output = get_constants_output()
     output = get_icingafile_output("/constants.conf")
     if output:
         path = re.search("const.+PluginDir.+\"(.+)\"", output)
