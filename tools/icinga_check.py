@@ -315,10 +315,16 @@ def get_plugin_path():
         return path.group(1)
 
 def check_local_disk():
+    notify = Notification()
     pluginpath = get_plugin_path()
     if pluginpath:
-        output = run_check("%s/check_disk" % pluginpath, "-c", "5")
-        print "local check_disk Test:", output[:32]
+        output = run_check("%s/check_disk" % pluginpath, "-c", "5\%")
+        if "OK" in output:
+            notify.ok("check_disk -c 5%:", output[:32])
+        elif "CRIT" in output:
+            notify.warn("check_disk -c 5%:", output[:44])
+        else:
+            notify.crit("check_disk -c 5%:", "Cant run check_disk with user \"icinga\"")
 
 def check_programstatus():
     notify = Notification()
