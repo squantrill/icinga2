@@ -333,6 +333,7 @@ def check_local_disk():
         else:
             notify.crit("check_disk -c 5%:", "Cant run check_disk with user \"icinga\"")
 
+#TODO better if condition (postmaster, mysql)
 def check_programstatus():
     notify = Notification()
     if "postmaster" in critical_services:
@@ -357,7 +358,7 @@ def check_programstatus():
                             AND i.instance_name='default'"
         mstatus = query_mysql(select_string)
         if mstatus:
-            date = re.search("\s+status_update_time\s+.+\s+(\d.+)", mstatus)
+            date = re.search(".+status_update_time.+\s+.+\s+.+(\d{4}.{15})", mstatus)
             if date:
                 notify.ok("IDO Programstatus:", date.group(1))
             else:
