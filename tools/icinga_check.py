@@ -49,9 +49,9 @@ class Notification:
     __colored = True
     def __init__(self):
         if get_os() is "nt":
-            self.__colored = False
+            self.__colored = ""
         else:
-            self.__colored = True
+            self.__colored = "color"
     def green(self, txt):
         return self.__color('\033[92m%s\033[0m', txt)
     def yellow(self, txt):
@@ -60,6 +60,8 @@ class Notification:
         return self.__color('\033[94m%s\033[0m', txt)
     def underline(self, txt):
         return self.__color('\033[4m%s\033[0m', txt)
+    def bold(self, txt):
+        return self.__color('\033[1m%s\033[0m', txt)
     def red(self, txt):
         return self.__color('\033[91m%s\033[0m', txt)
     def darkcyan(self, txt):
@@ -71,7 +73,7 @@ class Notification:
     def crit(self, service, msg=" - is not running"):
         self.__print(self.red("[CRIT]"), service, msg)
     def __color(self, color, text):
-        if self.__colored is True:
+        if self.__colored:
             return color % text
         else:
             return text
@@ -102,12 +104,21 @@ def get_os():
         os_name = os.name
         return os_name
 
+def query_pgsql(select_string):
+    os.environ['PGPASSWORD'] = 'icinga'
+    user ='icinga'
+    password ='icinga'
+    database ='icinga'
+    sql_check = subprocess.Popen(['psql', '-U', user, '-d', database, '-w' , '-c', select_string], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+    sqlout = sql_check.communicate()[0]
+    return sqlout
+
 def run_check(check, a="check_argument", b="value", c="", d=""):
     p = subprocess.Popen(["sudo", "-u", "icinga", check, a, b, c, d], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
 
-def run_cmd(cmd, a="arg"):
+def run_cmd(cmd, a=""):
     p = subprocess.Popen([cmd, a], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
     cmdout, err = p.communicate()
     return cmdout
@@ -292,20 +303,21 @@ def script_warnings():
     for i in script_warning:
         print i,
 
-def pre_script_config():
-    get_icinga2_dir()
-    find_non_crit_service_bin()
-    find_sql_bin()
-    find_apache_bin()
-
 def get_constants_output():
     idir = get_icinga2_dir()
     if os.path.isfile("%s/constants.conf" % idir):
         output = slurp("%s/constants.conf" % idir)
         return output
 
+def get_icingafile_output(path_to_file):
+    idir = get_icinga2_dir()
+    if os.path.isfile("%s%s" % (idir, path_to_file)):
+        output = slurp("%s%s" % (idir, path_to_file))
+        return output
+
 def get_plugin_path():
-    output = get_constants_output()
+    #output = get_constants_output()
+    output = get_icingafile_output("/constants.conf")
     if output:
         path = re.search("const.+PluginDir.+\"(.+)\"", output)
         return path.group(1)
@@ -316,13 +328,36 @@ def check_local_disk():
         output = run_check("%s/check_disk" % pluginpath, "-c", "5")
         print "local check_disk Test:", output[:32]
 
+def check_programstatus():
+    notify = Notification()
+    if "postmaster" in critical_services:
+        select_string = "SELECT ps.status_update_time FROM icinga_programstatus AS ps\
+                            JOIN icinga_instances AS i ON ps.instance_id=i.instance_id\
+                            WHERE ((SELECT extract(epoch from status_update_time) FROM icinga_programstatus) > (SELECT extract(epoch from now())-60))\
+                            AND i.instance_name='default'"
+        pstatus = query_pgsql(select_string)
+        if pstatus:
+            date = re.search("\s+status_update_time\s+.+\s+(\d.+)", pstatus)
+            if date:
+                notify.ok("IDO Programstatus:", date.group(1))
+            else:
+                notify.crit("IDO Programstatus:", "No Status Time")
+        else:
+            notify.warn("IDO Programstatus:","Error - check postgresql status")
+
+def pre_script_config():
+    get_icinga2_dir()
+    find_non_crit_service_bin()
+    find_sql_bin()
+    find_apache_bin()
+
 # MAIN Output
 def main():
     pre_script_config()
     notify = Notification()
-    print "====================================================="
-    print " Icinga2 Verify Script:"
-    print "====================================================="
+    print "===================================================================="
+    print "Icinga2 Verify Script:"
+    print "===================================================================="
     print notify.blue("Script Warnings:")
     script_warnings()
     print ""
@@ -337,9 +372,12 @@ def main():
     sql_info()
     print ""
     print notify.blue("Icinga Checks:")
+    #info
     icinga_version()
     get_enabled_features()
     print ""
+    #checks
+    check_programstatus()
     check_local_disk()
     print ""
     print notify.blue("Essential Service Checks:")
@@ -347,7 +385,6 @@ def main():
     print ""
     print notify.blue("non-critical Service Checks:")
     check_non_critical_service()
-
-
+    print "===================================================================="
 if __name__ == "__main__":
     main()
