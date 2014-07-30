@@ -112,6 +112,13 @@ def query_pgsql(select_string):
     sqlout = sql_check.communicate()[0]
     return sqlout
 
+def query_mysql(select_string):
+    output = get_icingafile_output("/features-available/ido-mysql.conf")
+    mysql_data = re.search("\"ido-mysql\".+user.+\"(?P<user>.+)\".+password.+\"(?P<password>.+)\".+host.+\"(?P<host>.+)\".+database.+\"(?P<database>.+)\"", output, re.S)
+    sql_check = subprocess.Popen(['mysql', '-u', mysql_data.group("user"), '-p', mysql_data.group("password"), '-e', select_string], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+    sqlout = sql_check.communicate()[0]
+    return sqlout
+
 def run_check(check, a="check_argument", b="value", c="", d=""):
     p = subprocess.Popen(["sudo", "-u", "icinga", check, a, b, c, d], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
     cmdout, err = p.communicate()
@@ -342,6 +349,21 @@ def check_programstatus():
                 notify.crit("IDO Programstatus:", "No Status Time")
         else:
             notify.warn("IDO Programstatus:","Error - check postgresql status")
+
+    elif "mysql" in critical_services:
+        select_string = "SELECT status_update_time FROM icinga_programstatus ps\
+                            JOIN icinga_instances i ON ps.instance_id=i.instance_id\
+                            WHERE (UNIX_TIMESTAMP(ps.status_update_time) > UNIX_TIMESTAMP(NOW())-60)\
+                            AND i.instance_name='default'"
+        mstatus = query_mysql(select_string)
+        if mstatus:
+            date = re.search("\s+status_update_time\s+.+\s+(\d.+)", mstatus)
+            if date:
+                notify.ok("IDO Programstatus:", date.group(1))
+            else:
+                notify.crit("IDO Programstatus:", "No Status Time")
+        else:
+            notify.warn("IDO Programstatus:","Error - check mysql status")
 
 def pre_script_config():
     get_icinga2_dir()
