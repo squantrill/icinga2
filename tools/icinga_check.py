@@ -115,7 +115,7 @@ def query_pgsql(select_string):
 def query_mysql(select_string):
     output = get_icingafile_output("/features-available/ido-mysql.conf")
     mysql_data = re.search("\"ido-mysql\".+user.+\"(?P<user>.+)\".+password.+\"(?P<password>.+)\".+host.+\"(?P<host>.+)\".+database.+\"(?P<database>.+)\"", output, re.S)
-    sql_check = subprocess.Popen(['mysql', '-u', mysql_data.group("user"), '-p', mysql_data.group("password"), '-e', select_string], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
+    sql_check = subprocess.Popen(['mysql', '-u', mysql_data.group("user"), '--password='+mysql_data.group("password"),'--database='+mysql_data.group("database"), '--execute='+select_string], stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.PIPE)
     sqlout = sql_check.communicate()[0]
     return sqlout
 
@@ -358,7 +358,7 @@ def check_programstatus():
                             AND i.instance_name='default'"
         mstatus = query_mysql(select_string)
         if mstatus:
-            date = re.search(".+status_update_time.+\s+.+\s+.+(\d{4}.{15})", mstatus)
+            date = re.search(".*status_update_time.*(\d{4}.{15})", mstatus, re.S)
             if date:
                 notify.ok("IDO Programstatus:", date.group(1))
             else:
