@@ -1,8 +1,7 @@
-﻿#! /usr/bin/python
+#!/usr/bin/env python
 #/******************************************************************************
 # * Icinga 2                                                                   *
-# * Copyright (C) 2012-2014 Icinga TEAM QS  (http://www.icinga.org)            *
-# * Author: Franz Holzer                                                        *
+# * Copyright (C) 2012-2014 Icinga Development Team (http://www.icinga.org)    *
 # *                                                                            *
 # * This program is free software; you can redistribute it and/or              *
 # * modify it under the terms of the GNU General Public License                *
@@ -276,7 +275,7 @@ def apache_info():
         apache_path = which(i)
         if apache_path:
             apache_bin = i
-            output = run_cmd(apache_bin, "-V")
+            output = run_cmd(apache_bin, "-v")
             short = re.search(".erver..ersion:.(.+)", output)
             print "Apache Ver.:", short.group(1)
 
