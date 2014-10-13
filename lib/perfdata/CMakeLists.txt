@@ -16,12 +16,13 @@
 # Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.
 
 mkclass_target(graphitewriter.ti graphitewriter.thpp)
+mkclass_target(opentsdbwriter.ti opentsdbwriter.thpp)
 mkclass_target(perfdatawriter.ti perfdatawriter.thpp)
 
 mkembedconfig_target(perfdata-type.conf perfdata-type.cpp)
 
 set(perfdata_SOURCES
-  graphitewriter.cpp graphitewriter.thpp perfdatawriter.cpp perfdatawriter.thpp perfdata-type.cpp
+  graphitewriter.cpp graphitewriter.thpp opentsdbwriter.cpp opentsdbwriter.thpp perfdatawriter.cpp perfdatawriter.thpp perfdata-type.cpp
 )
 
 if(ICINGA2_UNITY_BUILD)

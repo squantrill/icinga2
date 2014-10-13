@@ -48,6 +48,7 @@ install_if_not_exists(icinga2/features-available/ido-pgsql.conf ${CMAKE_INSTALL_
 install_if_not_exists(icinga2/features-available/livestatus.conf ${CMAKE_INSTALL_SYSCONFDIR}/icinga2/features-available)
 install_if_not_exists(icinga2/features-available/mainlog.conf ${CMAKE_INSTALL_SYSCONFDIR}/icinga2/features-available)
 install_if_not_exists(icinga2/features-available/notification.conf ${CMAKE_INSTALL_SYSCONFDIR}/icinga2/features-available)
+install_if_not_exists(icinga2/features-available/opentsdb.conf ${CMAKE_INSTALL_SYSCONFDIR}/icinga2/features-available)
 install_if_not_exists(icinga2/features-available/perfdata.conf ${CMAKE_INSTALL_SYSCONFDIR}/icinga2/features-available)
 install_if_not_exists(icinga2/features-available/statusdata.conf ${CMAKE_INSTALL_SYSCONFDIR}/icinga2/features-available)
 install_if_not_exists(icinga2/features-available/syslog.conf ${CMAKE_INSTALL_SYSCONFDIR}/icinga2/features-available)
