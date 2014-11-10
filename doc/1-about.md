@@ -86,7 +86,6 @@ can be installed acting as remote satellite or agent. Secured communication by S
 install them with [cli commands](#cli-commands), and configure them either locally with
 discovery on the master, or use them for executing checks and event handlers remotely.
 
-
 * High Performance
 
 Multithreaded and scalable for small embedded systems as well as large scale environments.
@@ -130,8 +129,10 @@ monitoring graphs.
 * Native support for [OpenTSDB](#opentsdb-writer)
 
 In addition to [Graphite](#graphite-carbon-cache-writer) Icinga 2 adds the
-capability of writing performance data directly into a OpenTSDB TCP socket simplifying realtime
+capability of writing performance data directly into a OpenTSDB TSD TCP socket simplifying realtime
 monitoring graphs.
+
+* Native support for writing log events to [GELF](#gelf-writer) receivers (graylog2, Logstash)
 
 * Dynamic configuration language
 
