@@ -109,8 +109,8 @@ void OpenTsdbWriter::CheckResultHandler(const Checkable::Ptr& checkable, const C
 	String hostName = host->GetName();
 
 	String metric;
-    std::map<String, String> tags;
-    tags["host"] = hostName;
+	std::map<String, String> tags;
+	tags["host"] = hostName;
 
 	if (service) {
 		String serviceName = service->GetShortName();
@@ -122,21 +122,24 @@ void OpenTsdbWriter::CheckResultHandler(const Checkable::Ptr& checkable, const C
 		metric = "icinga.host";
 		SendMetric(metric + ".state", tags, host->GetState());
 	}
-    SendMetric(metric + ".state_type", tags, checkable->GetStateType());
+
+	SendMetric(metric + ".state_type", tags, checkable->GetStateType());
 	SendMetric(metric + ".reachable", tags, checkable->IsReachable());
 	SendMetric(metric + ".downtime_depth", tags, checkable->GetDowntimeDepth());
 
 	SendPerfdata(metric, tags, cr);
 
-    metric = "icinga.check";
-    if (service) {
-        tags["type"] = "service";
+	metric = "icinga.check";
+
+	if (service) {
+		tags["type"] = "service";
 		String serviceName = service->GetShortName();
 		EscapeTag(serviceName);
-        tags["service"] = serviceName;
-    } else {
-        tags["type"] = "host";
-    }
+		tags["service"] = serviceName;
+	} else {
+		tags["type"] = "host";
+	}
+
 	SendMetric(metric + ".current_attempt", tags, checkable->GetCheckAttempt());
 	SendMetric(metric + ".max_check_attempts", tags, checkable->GetMaxCheckAttempts());
 	SendMetric(metric + ".latency", tags, Service::CalculateLatency(cr));
@@ -164,7 +167,7 @@ void OpenTsdbWriter::SendPerfdata(const String& metric, const std::map<String, S
 				continue;
 			}
 		}
-		
+
 		String escaped_key = pdv->GetLabel();
 		EscapeMetric(escaped_key);
 		boost::algorithm::replace_all(escaped_key, "::", ".");
@@ -187,17 +190,19 @@ void OpenTsdbWriter::SendMetric(const String& metric, const std::map<String, Str
     String tags_string = "";
     BOOST_FOREACH(const Dictionary::Pair& tag, tags) {
        tags_string += " " + tag.first + "=" + Convert::ToString(tag.second);
-    } 
-        
+    }
+
 	std::ostringstream msgbuf;
-    // must be (http://opentsdb.net/docs/build/html/user_guide/writing.html)
-    // put <metric> <timestamp> <value> <tagk1=tagv1[ tagk2=tagv2 ...tagkN=tagvN]>
-    // "tags" must include at least one tag, we use  "host=HOSTNAME"
+	/*
+	 * must be (http://opentsdb.net/docs/build/html/user_guide/writing.html)
+	 * put <metric> <timestamp> <value> <tagk1=tagv1[ tagk2=tagv2 ...tagkN=tagvN]>
+	 * "tags" must include at least one tag, we use "host=HOSTNAME"
+	 */
 	msgbuf << "put " << metric << " " << static_cast<long>(Utility::GetTime()) << " " << Convert::ToString(value) << " " << tags_string;
 
 	Log(LogDebug, "OpenTsdbWriter", "Add to metric list:'" + msgbuf.str() + "'.");
 
-	// do not send \n to debug log
+	/* do not send \n to debug log */
 	msgbuf << "\n";
 	String put = msgbuf.str();
 
@@ -215,8 +220,9 @@ void OpenTsdbWriter::SendMetric(const String& metric, const std::map<String, Str
 	}
 }
 
-// for metric and tag name rules, see
-// http://opentsdb.net/docs/build/html/user_guide/writing.html#metrics-and-tags
+/* for metric and tag name rules, see
+ * http://opentsdb.net/docs/build/html/user_guide/writing.html#metrics-and-tags
+ */
 String OpenTsdbWriter::EscapeTag(const String& str)
 {
 	String result = str;
