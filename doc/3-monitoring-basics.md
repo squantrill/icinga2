@@ -151,7 +151,6 @@ Further details can be looked up in the [check commands](3-monitoring-basics.md#
 If you happen to have further questions, do not hesitate to join the [community support channels](https://support.icinga.org)
 and ask community members for their experience and best practices.
 
-
 ### <a id="object-inheritance-using-templates"></a> Object Inheritance Using Templates
 
 Templates may be used to apply a set of identical attributes to more than one
@@ -251,7 +250,6 @@ dictionaries](#using-apply-for) for example provided by
 > of the generated objects. Use the `object list` [CLI command](7-cli-commands.md#cli-command-object)
 > after successful [configuration validation](7-cli-commands.md#config-validation).
 
-
 #### <a id="using-apply-expressions"></a> Apply Rules Expressions
 
 You can use simple or advanced combinations of apply rule expressions. Each
@@ -302,9 +300,6 @@ The notification is ignored for services whose host name ends with `*internal`
       ignore where match("*internal", host.name) || (service.vars.priority < 2 && host.vars.is_clustered == true)
     }
 
-
-
-
 #### <a id="using-apply-services"></a> Apply Services to Hosts
 
 The sample configuration already includes a detailed example in [hosts.conf](4-configuring-icinga-2.md#hosts-conf)
@@ -353,7 +348,6 @@ Detailed examples can be found in the [dependencies](3-monitoring-basics.md#depe
 The sample confituration includes an example in [downtimes.conf](4-configuring-icinga-2.md#downtimes-conf).
 
 Detailed examples can be found in the [recurring downtimes](3-monitoring-basics.md#recurring-downtimes) chapter.
-
 
 #### <a id="using-apply-for"></a> Using Apply For Rules
 
@@ -439,7 +433,6 @@ This can be achieved by wrapping them into the [string()](15-language-reference.
 > Building configuration in that dynamic way requires detailed information
 > of the generated objects. Use the `object list` [CLI command](7-cli-commands.md#cli-command-object)
 > after successful [configuration validation](7-cli-commands.md#config-validation).
-
 
 #### <a id="using-apply-object attributes"></a> Use Object Attributes in Apply Rules
 
@@ -793,7 +786,6 @@ If you are familiar with Icinga 1.x `notification_options` please note that they
 into type and state to allow more fine granular filtering for example on downtimes and flapping.
 You can filter for acknowledgements and custom notifications too.s and custom notifications too.
 
-
 ## <a id="timeperiods"></a> Time Periods
 
 Time Periods define time ranges in Icinga where event actions are
@@ -872,7 +864,6 @@ Use the `period` attribute to assign time periods to
       period = "workhours"
     }
 
-
 ## <a id="commands"></a> Commands
 
 Icinga 2 uses three different command object types to specify how
@@ -882,7 +873,6 @@ events should be handled.
 ### <a id="command-environment-variables"></a> Environment Variables for Commands
 
 Please check [Runtime Custom Attributes as Environment Variables](3-monitoring-basics.md#runtime-custom-attribute-env-vars).
-
 
 ### <a id="check-commands"></a> Check Commands
 
@@ -1010,7 +1000,6 @@ string values for passing multiple partitions to the `check_disk` check plugin.
 
 More details on using arrays in custom attributes can be found in
 [this chapter](3-monitoring-basics.md#runtime-custom-attributes).
-
 
 #### <a id="command-arguments"></a> Command Arguments
 
@@ -1141,7 +1130,6 @@ The `my-host1` will get the `my-ssh` service checking on the default port:
 The `my-host2` will inherit the `custom_ssh_port` variable to the service and execute a different command:
 
     [2014-05-26 21:51:32 +0200] notice/Process: Running command '/usr/lib/nagios/plugins/check_ssh', '-p', '2222', '129.168.2.50': PID 26956
-
 
 ### <a id="notification-commands"></a> Notification Commands
 
@@ -1365,9 +1353,6 @@ Remote Host Terminal:
     Mon Sep 15 18:58:44 CEST 2014
     Apache2 is running (pid 24908).
 
-
-
-
 ## <a id="dependencies"></a> Dependencies
 
 Icinga 2 uses host and service [Dependency](5-object-types.md#objecttype-dependency) objects
@@ -1539,7 +1524,6 @@ will detect their reachability immediately when executing checks.
 > This method with setting locally scoped variables only works in
 > apply rules, but not in object definitions.
 
-
 ### <a id="dependencies-agent-checks"></a> Dependencies for Agent Checks
 
 Another classic example are agent based checks. You would define a health check
@@ -1588,7 +1572,6 @@ and `nrpe-disk` applied to the `nrpe-server`. The health check is defined as
 The `disable-nrpe-checks` dependency is applied to all services
 on the `nrpe-service` host using the `nrpe` check_command attribute
 but not the `nrpe-health` service itself.
-
 
 ## <a id="downtimes"></a> Downtimes
 
@@ -1679,7 +1662,6 @@ Example:
       assign where "backup" in service.groups
     }
 
-
 ## <a id="comments-intro"></a> Comments
 
 Comments can be added at runtime and are persistent over restarts. You can
@@ -1690,7 +1672,6 @@ is primarly accessible using web interfaces.
 Adding and deleting comment actions are possible through the external command pipe
 provided with the `ExternalCommandListener` configuration. The caller must
 pass the comment id in case of manipulating an existing comment.
-
 
 ## <a id="acknowledgements"></a> Acknowledgements
 
@@ -1715,8 +1696,6 @@ you can define an expiration time when acknowledging the problem.
 
 Icinga 2 will clear the acknowledgement when expired and start to
 re-notify if the problem persists.
-
-
 
 ## <a id="custom-attributes"></a> Custom Attributes
 
@@ -1953,7 +1932,6 @@ modified attributes in its state file and restores them on restart.
 
 Modified Attributes can be reset using external commands.
 
-
 ## <a id="runtime-macros"></a> Runtime Macros
 
 Next to custom attributes there are additional runtime macros made available by Icinga 2.
@@ -2019,7 +1997,6 @@ When the service check is executed the output looks like
 
 That way you can easily override existing macros being accessed by their short name like `$address$` and refrain
 from defining multiple check commands (one for `$address$` and one for `$host.vars.macro_address$`).
-
 
 ### <a id="host-runtime-macros"></a> Host Runtime Macros
 
@@ -2138,7 +2115,6 @@ The following macros provide global statistics:
   icinga.num_hosts_in_downtime      | Current number of hosts in downtime.
   icinga.num_hosts_acknowledged     | Current number of acknowledged host problems.
 
-
 ## <a id="check-result-freshness"></a> Check Result Freshness
 
 In Icinga 2 active check freshness is enabled by default. It is determined by the
@@ -2153,7 +2129,6 @@ Passive check freshness is calculated from the `check_interval` attribute if set
 If the freshness checks are invalid, a new check is executed defined by the
 `check_command` attribute.
 
-
 ## <a id="check-flapping"></a> Check Flapping
 
 The flapping algorithm used in Icinga 2 does not store the past states but
@@ -2162,7 +2137,6 @@ half-life values. Icinga 2 compares the value with a single flapping threshold
 configuration attribute named `flapping_threshold`.
 
 Flapping detection can be enabled or disabled using the `enable_flapping` attribute.
-
 
 ## <a id="volatile-services"></a> Volatile Services
 
@@ -2176,7 +2150,6 @@ It may be reasonable to have a volatile service which stays in a `HARD`
 state type if the service stays in a `NOT-OK` state. That way each
 service recheck will automatically trigger a notification unless the
 service is acknowledged or in a scheduled downtime.
-
 
 ## <a id="external-commands"></a> External Commands
 
@@ -2202,7 +2175,6 @@ a forced service check:
 
     Oct 17 15:01:25 icinga-server icinga2: Executing external command: [1382014885] SCHEDULE_FORCED_SVC_CHECK;localhost;ping4;1382014885
     Oct 17 15:01:25 icinga-server icinga2: Rescheduling next check for service 'ping4'
-
 
 ### <a id="external-command-list"></a> External Command List
 
@@ -2231,7 +2203,6 @@ syslog   | Syslog (severity: `warning` or higher)
 By default file the `mainlog` feature is enabled. When running Icinga 2
 on a terminal log messages with severity `information` or higher are
 written to the console.
-
 
 ## <a id="performance-data"></a> Performance Data
 
@@ -2361,6 +2332,63 @@ Currently these events are processed:
 * State changes
 * Notifications
 
+### <a id="opentsdb-writer"></a> OpenTSDB Writer
+
+While there are some OpenTSDB collector scripts and daemons like tcollector available for
+Icinga 1.x it's more reasonable to directly process the check and plugin performance
+in memory in Icinga 2. Once there are new metrics available, Icinga 2 will directly
+write them to the defined TSDB TCP socket.
+
+You can enable the feature using
+
+    # icinga2 feature enable opentsdb
+
+By default the `OpenTsdbWriter` object expects the TSD to listen at
+`127.0.0.1` on port `4242`.
+
+The current naming schema is
+
+    icinga.host.<metricname>
+    icinga.service.<servicename>.<metricname>
+
+for host and service checks. The tag host is always applied.
+
+To make sure Icinga 2 writes a valid metric into OpenTSDB some characters are replaced
+with `_` in the target name:
+
+    \  (and space)
+
+The resulting name in OpenTSDB might look like:
+
+    www-01 / http-cert / response time
+    icinga.http_cert.response_time
+
+In addition to the performance data retrieved from the check plugin, Icinga 2 sends
+internal check statistic data to OpenTSDB:
+
+  metric             | description
+  -------------------|------------------------------------------
+  current_attempt    | current check attempt
+  max_check_attempts | maximum check attempts until the hard state is reached
+  reachable          | checked object is reachable
+  downtime_depth     | number of downtimes this object is in
+  execution_time     | check execution time
+  latency            | check latency
+  state              | current state of the checked object
+  state_type         | 0=SOFT, 1=HARD state
+
+While reachable, state and state_type are metrics for the host or service the
+other metrics follow the current naming schema
+
+    icinga.check.<metricname>
+
+with the following tags
+
+  tag     | description
+  --------|------------------------------------------
+  type    | the check type, one of [host, service]
+  host    | hostname, the check ran on
+  service | the service name (if type=service)
 
 ## <a id="status-data"></a> Status Data
 
@@ -2377,7 +2405,6 @@ Icinga 1.x Classic UI requires this data set as part of its backend.
 >
 > If you are not using any web interface or addon which uses these files
 > you can safely disable this feature.
-
 
 ## <a id="compat-logging"></a> Compat Logging
 
@@ -2424,9 +2451,6 @@ existing log parsers.
     [1382115706] EXTERNAL COMMAND: SCHEDULE_FORCED_SVC_CHECK;localhost;users;1382115705
     [1382115731] EXTERNAL COMMAND: PROCESS_SERVICE_CHECK_RESULT;localhost;ping6;2;critical test|
     [1382115731] SERVICE ALERT: localhost;ping6;CRITICAL;SOFT;2;critical test
-
-
-
 
 ## <a id="db-ido"></a> DB IDO
 
@@ -2482,7 +2506,6 @@ Example for PostgreSQL:
 
 
 A detailed list on the available table attributes can be found in the [DB IDO Schema documentation](17-appendix.md#schema-db-ido).
-
 
 ## <a id="check-result-files"></a> Check Result Files
 
