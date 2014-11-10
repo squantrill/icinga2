@@ -1335,6 +1335,28 @@ Example with your custom [global constant](#global-constants) `GraphiteEnv`:
     host_name_template = GraphiteEnv + ".$host.name$"
     service_name_template = GraphiteEnv + ".$host.name$.$service.name$"
 
+
+### <a id="objecttype-opentsdbwriter"></a> OpentsdbWriter
+
+Writes check result metrics and performance data to a defined
+OpenTSDB host.
+
+Example:
+
+    library "perfdata"
+
+    object GraphiteWriter "graphite" {
+      host = "127.0.0.1"
+      port = 4242
+    }
+
+Attributes:
+
+  Name            	|Description
+  ----------------------|----------------------
+  host            	|**Optional.** Graphite Carbon host address. Defaults to '127.0.0.1'.
+  port            	|**Optional.** Graphite Carbon port. Defaults to 4242
+
 ### <a id="objecttype-idomysqlconnection"></a> IdoMySqlConnection
 
 IDO database adapter for MySQL.
