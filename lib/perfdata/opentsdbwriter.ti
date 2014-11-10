@@ -3,7 +3,7 @@
 namespace icinga
 {
 
-class OpenTSDBWriter : DynamicObject
+class OpenTsdbWriter : DynamicObject
 {
 	[config] String host {
 		default {{{ return "127.0.0.1"; }}}

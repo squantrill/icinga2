@@ -35,11 +35,11 @@ namespace icinga
  *
  * @ingroup perfdata
  */
-class OpenTSDBWriter : public ObjectImpl<OpenTSDBWriter>
+class OpenTsdbWriter : public ObjectImpl<OpenTsdbWriter>
 {
 public:
-	DECLARE_PTR_TYPEDEFS(OpenTSDBWriter);
-	DECLARE_TYPENAME(OpenTSDBWriter);
+	DECLARE_OBJECT(OpenTsdbWriter);
+	DECLARE_OBJECTNAME(OpenTsdbWriter);
 
 	static Value StatsFunc(const Dictionary::Ptr& status, const Array::Ptr& perfdata);
 
