@@ -220,14 +220,9 @@ void OpenTsdbWriter::SendMetric(const String& metric, const std::map<String, Str
 	}
 }
 
-<<<<<<< HEAD
 /* for metric and tag name rules, see
  * http://opentsdb.net/docs/build/html/user_guide/writing.html#metrics-and-tags
  */
-=======
-// for metric and tag name rules, see
-// http://opentsdb.net/docs/build/html/user_guide/writing.html#metrics-and-tags
->>>>>>> Rebase against latest master, s/OpenTSDBWriter/OpenTsdbWriter/
 String OpenTsdbWriter::EscapeTag(const String& str)
 {
 	String result = str;
