@@ -1358,6 +1358,29 @@ Example with your custom [global constant](#global-constants) `GraphiteEnv`:
     host_name_template = GraphiteEnv + ".$host.name$"
     service_name_template = GraphiteEnv + ".$host.name$.$service.name$"
 
+
+### <a id="objecttype-opentsdbwriter"></a> OpentsdbWriter
+
+Writes check result metrics and performance data to a defined
+OpenTSDB host.
+
+Example:
+
+    library "perfdata"
+
+    object OpenTsdbWriter "opentsdb" {
+      host = "127.0.0.1"
+      port = 4242
+    }
+
+Attributes:
+
+  Name            	|Description
+  ----------------------|----------------------
+  host            	|**Optional.** OpenTSDB host address. Defaults to '127.0.0.1'.
+  port            	|**Optional.** OpenTSDB port. Defaults to 4242
+
+
 ### <a id="objecttype-gelfwriter"></a> GelfWriter
 
 Writes event log entries to a defined GELF receiver host (Graylog2, Logstash).
@@ -1378,7 +1401,6 @@ Attributes:
   host            	|**Optional.** GELF receiver host address. Defaults to '127.0.0.1'.
   port            	|**Optional.** GELF receiver port. Defaults to `12201`.
   source		|**Optional.** Source name for this instance. Defaults to `icinga2`.
-
 
 ### <a id="objecttype-idomysqlconnection"></a> IdoMySqlConnection
 
