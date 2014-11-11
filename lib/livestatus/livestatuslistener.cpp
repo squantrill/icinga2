@@ -32,6 +32,7 @@
 #include "base/scriptfunction.hpp"
 #include "base/statsfunction.hpp"
 #include "base/convert.hpp"
+#include "base/gc.hpp"
 
 using namespace icinga;
 
@@ -79,7 +80,7 @@ void LivestatusListener::Start(void)
 			return;
 		}
 
-		boost::thread thread(boost::bind(&LivestatusListener::ServerThreadProc, this, socket));
+		boost::thread thread(GC::WrapThread(boost::bind(&LivestatusListener::ServerThreadProc, this, socket)));
 		thread.detach();
 		Log(LogInformation, "LivestatusListener")
 		    << "Created TCP socket listening on host '" << GetBindHost() << "' port '" << GetBindPort() << "'.";
@@ -104,7 +105,7 @@ void LivestatusListener::Start(void)
 			return;
 		}
 
-		boost::thread thread(boost::bind(&LivestatusListener::ServerThreadProc, this, socket));
+		boost::thread thread(GC::WrapThread(boost::bind(&LivestatusListener::ServerThreadProc, this, socket)));
 		thread.detach();
 		Log(LogInformation, "LivestatusListener")
 		    << "Created UNIX socket in '" << GetSocketPath() << "'.";

@@ -20,6 +20,7 @@
 #include "base/timer.hpp"
 #include "base/debug.hpp"
 #include "base/utility.hpp"
+#include "base/gc.hpp"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread/thread.hpp>
@@ -67,7 +68,7 @@ void Timer::Initialize(void)
 {
 	boost::mutex::scoped_lock lock(l_Mutex);
 	l_StopThread = false;
-	l_Thread = boost::thread(&Timer::TimerThreadProc);
+	l_Thread = boost::thread(GC::WrapThread(&Timer::TimerThreadProc));
 }
 
 /**

@@ -17,68 +17,29 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.             *
  ******************************************************************************/
 
-#include "base/object.hpp"
-#include "base/value.hpp"
-#include "base/primitivetype.hpp"
+#include "base/gc.hpp"
+#include <boost/bind.hpp>
 
 using namespace icinga;
 
-REGISTER_PRIMITIVE_TYPE(Object);
-
-#ifdef _DEBUG
-boost::mutex Object::m_DebugMutex;
-#endif /* _DEBUG */
-
-/**
- * Default constructor for the Object class.
- */
-Object::Object(void)
-#ifdef _DEBUG
-	: m_Locked(false)
-#endif /* _DEBUG */
-{ }
-
-/**
- * Destructor for the Object class.
- */
-Object::~Object(void)
-{ }
-
-#ifdef _DEBUG
-/**
- * Checks if the calling thread owns the lock on this object.
- *
- * @returns True if the calling thread owns the lock, false otherwise.
- */
-bool Object::OwnsLock(void) const
+void GC::Initialize(void)
 {
-	boost::mutex::scoped_lock lock(m_DebugMutex);
-
-	return (m_Locked && m_LockOwner == boost::this_thread::get_id());
-}
-#endif /* _DEBUG */
-
-void Object::SetField(int, const Value&)
-{
-	BOOST_THROW_EXCEPTION(std::runtime_error("Invalid field ID."));
+	GC_init();
+	GC_allow_register_threads();
 }
 
-Value Object::GetField(int) const
+static void GCThreadBase(const boost::function<void (void)>& callback)
 {
-	BOOST_THROW_EXCEPTION(std::runtime_error("Invalid field ID."));
+	struct GC_stack_base stack_base;
+
+	GC_get_stack_base(&stack_base);
+	GC_register_my_thread(&stack_base);
+	callback();
+	GC_unregister_my_thread();
 }
 
-void *operator new(size_t size)
+boost::function<void (void)> GC::WrapThread(const boost::function<void (void)>& callback)
 {
-	static bool init_called = false;
-	if (!init_called) {
-		GC_init();
-		init_called = true;
-	}
-	return gc::operator new(size);
-}
-
-void operator delete(void *ptr)
-{
+	return boost::bind(GCThreadBase, callback);
 }
 

@@ -29,6 +29,7 @@
 #include "base/convert.hpp"
 #include "base/scriptvariable.hpp"
 #include "base/process.hpp"
+#include "base/gc.hpp"
 #include "icinga-version.h"
 #include <sstream>
 #include <boost/algorithm/string/classification.hpp>
@@ -114,6 +115,8 @@ void Application::Exit(int rc)
 
 void Application::InitializeBase(void)
 {
+	GC::Initialize();
+
 #ifndef _WIN32
 	rlimit rl;
 	if (getrlimit(RLIMIT_NOFILE, &rl) >= 0) {

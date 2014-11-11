@@ -88,6 +88,10 @@ if(NOT YAJL_FOUND)
   set(YAJL_LIBRARIES "yajl")
 endif()
 
+find_package(GC)
+
+include_directories(${GC_INCLUDE_DIRS})
+
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/lib
   ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/lib

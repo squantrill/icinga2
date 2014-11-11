@@ -17,68 +17,32 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301, USA.             *
  ******************************************************************************/
 
-#include "base/object.hpp"
-#include "base/value.hpp"
-#include "base/primitivetype.hpp"
+#ifndef GC_HPP
+#define GC_HPP
 
-using namespace icinga;
+#include "base/i2-base.hpp"
+#include <boost/function.hpp>
+#define GC_THREADS
+#include <gc/gc.h>
+#include <gc/gc_cpp.h>
 
-REGISTER_PRIMITIVE_TYPE(Object);
-
-#ifdef _DEBUG
-boost::mutex Object::m_DebugMutex;
-#endif /* _DEBUG */
-
-/**
- * Default constructor for the Object class.
- */
-Object::Object(void)
-#ifdef _DEBUG
-	: m_Locked(false)
-#endif /* _DEBUG */
-{ }
-
-/**
- * Destructor for the Object class.
- */
-Object::~Object(void)
-{ }
-
-#ifdef _DEBUG
-/**
- * Checks if the calling thread owns the lock on this object.
- *
- * @returns True if the calling thread owns the lock, false otherwise.
- */
-bool Object::OwnsLock(void) const
+namespace icinga
 {
-	boost::mutex::scoped_lock lock(m_DebugMutex);
 
-	return (m_Locked && m_LockOwner == boost::this_thread::get_id());
-}
-#endif /* _DEBUG */
-
-void Object::SetField(int, const Value&)
+class GC
 {
-	BOOST_THROW_EXCEPTION(std::runtime_error("Invalid field ID."));
+public:
+	static void Initialize(void);
+	static boost::function<void (void)> WrapThread(const boost::function<void (void)>& callback);
+
+private:
+	GC(void);
+};
+
+class GCObject : public gc
+{ };
+
 }
 
-Value Object::GetField(int) const
-{
-	BOOST_THROW_EXCEPTION(std::runtime_error("Invalid field ID."));
-}
-
-void *operator new(size_t size)
-{
-	static bool init_called = false;
-	if (!init_called) {
-		GC_init();
-		init_called = true;
-	}
-	return gc::operator new(size);
-}
-
-void operator delete(void *ptr)
-{
-}
+#endif /* GC_HPP */
 

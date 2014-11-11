@@ -22,6 +22,7 @@
 
 #include "base/i2-base.hpp"
 #include "base/debug.hpp"
+#include "base/gc.hpp"
 #include "base/thinmutex.hpp"
 #include <boost/thread/thread.hpp>
 
@@ -84,7 +85,7 @@ struct TypeHelper
  *
  * @ingroup base
  */
-class I2_BASE_API Object
+class I2_BASE_API Object : public GCObject
 {
 public:
 	DECLARE_OBJECT(Object);
@@ -103,7 +104,6 @@ private:
 	Object(const Object& other);
 	Object& operator=(const Object& rhs);
 
-	uintptr_t m_References;
 	mutable ThinMutex m_Mutex;
 
 #ifdef _DEBUG
@@ -120,24 +120,10 @@ private:
 
 inline void intrusive_ptr_add_ref(Object *object)
 {
-#ifdef _WIN32
-	InterlockedIncrement(&object->m_References);
-#else /* _WIN32 */
-	__sync_add_and_fetch(&object->m_References, 1);
-#endif /* _WIN32 */
 }
 
 inline void intrusive_ptr_release(Object *object)
 {
-	uintptr_t refs;
-#ifdef _WIN32
-	refs = InterlockedDecrement(&object->m_References);
-#else /* _WIN32 */
-	refs = __sync_sub_and_fetch(&object->m_References, 1);
-#endif /* _WIN32 */
-
-	if (refs == 0)
-		delete object;
 }
 
 template<typename T>

@@ -26,6 +26,7 @@
 #include "base/utility.hpp"
 #include "base/logger.hpp"
 #include "base/exception.hpp"
+#include "base/gc.hpp"
 
 using namespace icinga;
 
@@ -43,7 +44,7 @@ ApiClient::ApiClient(const String& identity, bool authenticated, const TlsStream
 
 void ApiClient::Start(void)
 {
-	boost::thread thread(boost::bind(&ApiClient::MessageThreadProc, ApiClient::Ptr(this)));
+	boost::thread thread(GC::WrapThread(boost::bind(&ApiClient::MessageThreadProc, ApiClient::Ptr(this))));
 	thread.detach();
 }
 

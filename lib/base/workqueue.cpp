@@ -21,6 +21,7 @@
 #include "base/utility.hpp"
 #include "base/logger.hpp"
 #include "base/convert.hpp"
+#include "base/gc.hpp"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
@@ -66,7 +67,7 @@ void WorkQueue::Enqueue(const WorkCallback& callback, bool allowInterleaved)
 	boost::mutex::scoped_lock lock(m_Mutex);
 
 	if (m_Thread.get_id() == boost::thread::id())
-		m_Thread = boost::thread(boost::bind(&WorkQueue::WorkerThreadProc, this));
+		m_Thread = boost::thread(GC::WrapThread(boost::bind(&WorkQueue::WorkerThreadProc, this)));
 
 	if (!wq_thread) {
 		while (m_Items.size() >= m_MaxItems)
