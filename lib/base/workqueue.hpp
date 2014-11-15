@@ -28,17 +28,14 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition_variable.hpp>
 #include <boost/exception_ptr.hpp>
+#include <boost/lockfree/queue.hpp>
+#include <boost/smart_ptr/scoped_ptr.hpp>
+#include <boost/atomic.hpp>
 
 namespace icinga
 {
 
 typedef boost::function<void (void)> WorkCallback;
-
-struct WorkItem
-{
-	WorkCallback Callback;
-	bool AllowInterleaved;
-};
 
 /**
  * A workqueue.
@@ -50,53 +47,29 @@ class I2_BASE_API WorkQueue
 public:
 	typedef boost::function<void (boost::exception_ptr)> ExceptionCallback;
 
-	WorkQueue(size_t maxItems = 25000);
+	WorkQueue(bool parallel = false);
 	~WorkQueue(void);
 
 	void Enqueue(const WorkCallback& callback, bool allowInterleaved = false);
 	void Join(bool stop = false);
 
-	boost::thread::id GetThreadId(void) const;
-
 	void SetExceptionCallback(const ExceptionCallback& callback);
 
-	size_t GetLength(void);
-
 private:
+	bool m_Parallel;
 	int m_ID;
 	static int m_NextID;
-
-	boost::mutex m_Mutex;
-	boost::condition_variable m_CVEmpty;
-	boost::condition_variable m_CVFull;
-	boost::condition_variable m_CVStarved;
-	boost::thread m_Thread;
-	size_t m_MaxItems;
-	bool m_Stopped;
-	bool m_Processing;
-	std::deque<WorkItem> m_Items;
+	
+	boost::lockfree::queue<WorkCallback *> m_Queue;
+	boost::thread_group m_Threads;
+	boost::atomic<bool> m_ProducerFinished;
 	ExceptionCallback m_ExceptionCallback;
-	Timer::Ptr m_StatusTimer;
 
+	void SpawnThreads(void);
+	void ProcessQueue(void);
 	void WorkerThreadProc(void);
-	void StatusTimerHandler(void);
 
 	static void DefaultExceptionCallback(boost::exception_ptr exp);
-};
-
-class I2_BASE_API ParallelWorkQueue
-{
-public:
-	ParallelWorkQueue(void);
-	~ParallelWorkQueue(void);
-
-	void Enqueue(const boost::function<void(void)>& callback);
-	void Join(void);
-
-private:
-	unsigned int m_QueueCount;
-	WorkQueue *m_Queues;
-	unsigned int m_Index;
 };
 
 }

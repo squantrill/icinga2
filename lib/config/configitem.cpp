@@ -275,7 +275,7 @@ bool ConfigItem::CommitNewItems(void)
 	std::vector<ConfigItem::Ptr> items;
 
 	do {
-		ParallelWorkQueue upq;
+		WorkQueue upq(true);
 
 		items.clear();
 
@@ -365,7 +365,7 @@ bool ConfigItem::ActivateItems(void)
 
 	Log(LogInformation, "ConfigItem", "Triggering Start signal for config items");
 
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	BOOST_FOREACH(const DynamicType::Ptr& type, DynamicType::GetTypes()) {
 		BOOST_FOREACH(const DynamicObject::Ptr& object, type->GetObjects()) {

@@ -191,11 +191,9 @@ void ScheduledDowntime::EvaluateApplyRule(const ApplyRule& rule)
 
 void ScheduledDowntime::EvaluateApplyRules(const std::vector<ApplyRule>& rules)
 {
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	BOOST_FOREACH(const ApplyRule& rule, rules) {
 		upq.Enqueue(boost::bind(&ScheduledDowntime::EvaluateApplyRule, boost::cref(rule)));
 	}
-
-	upq.Join();
 }

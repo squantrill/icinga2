@@ -28,14 +28,11 @@ using namespace icinga;
 
 int WorkQueue::m_NextID = 1;
 
-WorkQueue::WorkQueue(size_t maxItems)
-	: m_ID(m_NextID++), m_MaxItems(maxItems), m_Stopped(false),
-	  m_Processing(false), m_ExceptionCallback(WorkQueue::DefaultExceptionCallback)
+WorkQueue::WorkQueue(bool parallel)
+	: m_ID(m_NextID++), m_Queue(1000), m_ProducerFinished(false),
+	  m_ExceptionCallback(WorkQueue::DefaultExceptionCallback)
 {
-	m_StatusTimer = new Timer();
-	m_StatusTimer->SetInterval(10);
-	m_StatusTimer->OnTimerExpired.connect(boost::bind(&WorkQueue::StatusTimerHandler, this));
-	m_StatusTimer->Start();
+	SpawnThreads();
 }
 
 WorkQueue::~WorkQueue(void)
@@ -45,74 +42,48 @@ WorkQueue::~WorkQueue(void)
 
 /**
  * Enqueues a work item. Work items are guaranteed to be executed in the order
- * they were enqueued in except when allowInterleaved is true in which case
+ * they were enqueued in except when a) allowInterleaved is true in which case
  * the new work item might be run immediately if it's being enqueued from
- * within the WorkQueue thread.
+ * within the WorkQueue thread or b) this is a parallel queue.
  */
 void WorkQueue::Enqueue(const WorkCallback& callback, bool allowInterleaved)
 {
-	bool wq_thread = (boost::this_thread::get_id() == GetThreadId());
-
-	if (wq_thread && allowInterleaved) {
+	if (allowInterleaved && m_Threads.is_this_thread_in()) {
 		callback();
 
 		return;
 	}
 
-	WorkItem item;
-	item.Callback = callback;
-	item.AllowInterleaved = allowInterleaved;
+	WorkCallback *item = new WorkCallback(callback);
+	m_Queue.push(item);
+}
 
-	boost::mutex::scoped_lock lock(m_Mutex);
+void WorkQueue::SpawnThreads(void)
+{
+	int num_threads;
 
-	if (m_Thread.get_id() == boost::thread::id())
-		m_Thread = boost::thread(boost::bind(&WorkQueue::WorkerThreadProc, this));
+	if (m_Parallel)
+		num_threads = boost::thread::hardware_concurrency();
+	else
+		num_threads = 1;
 
-	if (!wq_thread) {
-		while (m_Items.size() >= m_MaxItems)
-			m_CVFull.wait(lock);
-	}
-
-	m_Items.push_back(item);
-
-	if (m_Items.size() == 1)
-		m_CVEmpty.notify_all();
+	for (int i = 0; i < num_threads; i++)
+		m_Threads.create_thread(boost::bind(&WorkQueue::WorkerThreadProc, this));
 }
 
 void WorkQueue::Join(bool stop)
 {
-	boost::mutex::scoped_lock lock(m_Mutex);
+	m_ProducerFinished = true;
+	m_Threads.join_all();
+	m_ProducerFinished = false;
 
-	while (m_Processing || !m_Items.empty())
-		m_CVStarved.wait(lock);
-
-	if (stop) {
-		m_Stopped = true;
-		m_CVEmpty.notify_all();
-		lock.unlock();
-
-		if (m_Thread.joinable())
-			m_Thread.join();
-	}
-}
-
-boost::thread::id WorkQueue::GetThreadId(void) const
-{
-	return m_Thread.get_id();
+	if (!stop)
+		SpawnThreads();
 }
 
 void WorkQueue::SetExceptionCallback(const ExceptionCallback& callback)
 {
-	boost::mutex::scoped_lock lock(m_Mutex);
-
 	m_ExceptionCallback = callback;
-}
-
-size_t WorkQueue::GetLength(void)
-{
-	boost::mutex::scoped_lock lock(m_Mutex);
-
-	return m_Items.size();
 }
 
 void WorkQueue::DefaultExceptionCallback(boost::exception_ptr)
@@ -120,12 +91,19 @@ void WorkQueue::DefaultExceptionCallback(boost::exception_ptr)
 	throw;
 }
 
-void WorkQueue::StatusTimerHandler(void)
+void WorkQueue::ProcessQueue(void)
 {
-	boost::mutex::scoped_lock lock(m_Mutex);
+	WorkCallback *item;
 
-	Log(LogNotice, "WorkQueue")
-	    << "#" << m_ID << " items: " << m_Items.size();
+	while (m_Queue.pop(item)) {
+		try {
+			(*item)();
+			delete item;
+		} catch (...) {
+			delete item;
+			m_ExceptionCallback(boost::current_exception());
+		}
+	}
 }
 
 void WorkQueue::WorkerThreadProc(void)
@@ -134,67 +112,8 @@ void WorkQueue::WorkerThreadProc(void)
 	idbuf << "WQ #" << m_ID;
 	Utility::SetThreadName(idbuf.str());
 
-	boost::mutex::scoped_lock lock(m_Mutex);
+	while (!m_ProducerFinished)
+		ProcessQueue();
 
-	for (;;) {
-		while (m_Items.empty() && !m_Stopped)
-			m_CVEmpty.wait(lock);
-
-		if (m_Stopped)
-			break;
-
-		std::deque<WorkItem> items;
-		m_Items.swap(items);
-
-		if (items.size() >= m_MaxItems)
-			m_CVFull.notify_all();
-
-		m_Processing = true;
-
-		lock.unlock();
-
-		BOOST_FOREACH(WorkItem& wi, items) {
-			try {
-				wi.Callback();
-			}
-			catch (const std::exception&) {
-				lock.lock();
-
-				ExceptionCallback callback = m_ExceptionCallback;
-
-				lock.unlock();
-
-				callback(boost::current_exception());
-			}
-		}
-
-		lock.lock();
-
-		m_Processing = false;
-
-		m_CVStarved.notify_all();
-	}
-}
-
-ParallelWorkQueue::ParallelWorkQueue(void)
-	: m_QueueCount(boost::thread::hardware_concurrency()),
-	  m_Queues(new WorkQueue[m_QueueCount]),
-	  m_Index(0)
-{ }
-
-ParallelWorkQueue::~ParallelWorkQueue(void)
-{
-	delete[] m_Queues;
-}
-
-void ParallelWorkQueue::Enqueue(const boost::function<void(void)>& callback)
-{
-	m_Index++;
-	m_Queues[m_Index % m_QueueCount].Enqueue(callback);
-}
-
-void ParallelWorkQueue::Join(void)
-{
-	for (unsigned int i = 0; i < m_QueueCount; i++)
-		m_Queues[i].Join();
+	ProcessQueue();
 }

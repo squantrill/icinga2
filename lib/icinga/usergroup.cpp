@@ -81,13 +81,11 @@ void UserGroup::EvaluateObjectRule(const ObjectRule& rule)
 
 void UserGroup::EvaluateObjectRules(const std::vector<ObjectRule>& rules)
 {
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	BOOST_FOREACH(const ObjectRule& rule, rules) {
 		upq.Enqueue(boost::bind(UserGroup::EvaluateObjectRule, boost::cref(rule)));
 	}
-
-	upq.Join();
 }
 
 std::set<User::Ptr> UserGroup::GetMembers(void) const

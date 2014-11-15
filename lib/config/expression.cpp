@@ -45,10 +45,10 @@ Value Expression::Evaluate(const Object::Ptr& context, DebugHint *dhint) const
 {
 	try {
 #ifdef _DEBUG
-		std::ostringstream msgbuf;
+/*		std::ostringstream msgbuf;
 		ShowCodeFragment(msgbuf, GetDebugInfo(), false);
 		Log(LogDebug, "Expression")
-			<< "Executing:\n" << msgbuf.str();
+			<< "Executing:\n" << msgbuf.str();*/
 #endif /* _DEBUG */
 
 		return DoEvaluate(context, dhint);

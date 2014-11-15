@@ -84,13 +84,11 @@ void ServiceGroup::EvaluateObjectRule(const ObjectRule& rule)
 
 void ServiceGroup::EvaluateObjectRules(const std::vector<ObjectRule>& rules)
 {
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	BOOST_FOREACH(const ObjectRule& rule, rules) {
 		upq.Enqueue(boost::bind(ServiceGroup::EvaluateObjectRule, boost::cref(rule)));
 	}
-
-	upq.Join();
 }
 
 std::set<Service::Ptr> ServiceGroup::GetMembers(void) const

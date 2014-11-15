@@ -81,13 +81,11 @@ void HostGroup::EvaluateObjectRule(const ObjectRule& rule)
 
 void HostGroup::EvaluateObjectRules(const std::vector<ObjectRule>& rules)
 {
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	BOOST_FOREACH(const ObjectRule& rule, rules) {
 		upq.Enqueue(boost::bind(HostGroup::EvaluateObjectRule, boost::cref(rule)));
 	}
-
-	upq.Join();
 }
 
 std::set<Host::Ptr> HostGroup::GetMembers(void) const

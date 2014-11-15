@@ -151,11 +151,9 @@ void Service::EvaluateApplyRule(const ApplyRule& rule)
 
 void Service::EvaluateApplyRules(const std::vector<ApplyRule>& rules)
 {
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	BOOST_FOREACH(const ApplyRule& rule, rules) {
 		upq.Enqueue(boost::bind(&Service::EvaluateApplyRule, boost::cref(rule)));
 	}
-
-	upq.Join();
 }

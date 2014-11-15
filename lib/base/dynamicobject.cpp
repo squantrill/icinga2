@@ -335,7 +335,7 @@ void DynamicObject::RestoreObjects(const String& filename, int attributeTypes)
 
 	unsigned long restored = 0;
 
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	String message;
 	while (NetString::ReadStringFromStream(sfp, &message)) {

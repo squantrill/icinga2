@@ -191,11 +191,9 @@ void Notification::EvaluateApplyRule(const ApplyRule& rule)
 }
 void Notification::EvaluateApplyRules(const std::vector<ApplyRule>& rules)
 {
-	ParallelWorkQueue upq;
+	WorkQueue upq(true);
 
 	BOOST_FOREACH(const ApplyRule& rule, rules) {
 		upq.Enqueue(boost::bind(&Notification::EvaluateApplyRule, boost::cref(rule)));
 	}
-
-	upq.Join();
 }
