@@ -28,14 +28,12 @@
 #include "base/utility.hpp"
 #include "base/initialize.hpp"
 #include "base/logger.hpp"
-#include "base/scriptfunction.hpp"
 #include "base/exception.hpp"
 #include <boost/foreach.hpp>
 
 using namespace icinga;
 
 REGISTER_TYPE(DbConnection);
-REGISTER_SCRIPTFUNCTION(ValidateFailoverTimeout, &DbConnection::ValidateFailoverTimeout);
 
 Timer::Ptr DbConnection::m_ProgramStatusTimer;
 
@@ -421,10 +419,10 @@ void DbConnection::PrepareDatabase(void)
 	}
 }
 
-void DbConnection::ValidateFailoverTimeout(const String& location, const DbConnection::Ptr& object)
+void DbConnection::Validate(const ValidationUtils& utils) const
 {
-	if (object->GetFailoverTimeout() < 60) {
-		BOOST_THROW_EXCEPTION(ScriptError("Validation failed for " +
-		    location + ": Failover timeout minimum is 60s.", object->GetDebugInfo()));
-	}
+	ObjectImpl<DbConnection>::Validate(utils);
+
+	if (GetFailoverTimeout() < 60)
+		BOOST_THROW_EXCEPTION(ScriptError("Validation failed: Failover timeout minimum is 60s.", GetDebugInfo()));
 }

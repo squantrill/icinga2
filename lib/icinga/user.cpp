@@ -21,7 +21,6 @@
 #include "icinga/usergroup.hpp"
 #include "icinga/notification.hpp"
 #include "icinga/usergroup.hpp"
-#include "base/scriptfunction.hpp"
 #include "base/objectlock.hpp"
 #include "base/exception.hpp"
 #include <boost/foreach.hpp>
@@ -29,7 +28,6 @@
 using namespace icinga;
 
 REGISTER_TYPE(User);
-REGISTER_SCRIPTFUNCTION(ValidateUserFilters, &User::ValidateFilters);
 
 boost::signals2::signal<void (const User::Ptr&, bool, const MessageOrigin&)> User::OnEnableNotificationsChanged;
 
@@ -101,22 +99,22 @@ TimePeriod::Ptr User::GetPeriod(void) const
 	return TimePeriod::GetByName(GetPeriodRaw());
 }
 
-void User::ValidateFilters(const String& location, const User::Ptr& object)
+void User::Validate(const ValidationUtils& utils) const
 {
-	int sfilter = FilterArrayToInt(object->GetStates(), 0);
+	ObjectImpl<User>::Validate(utils);
+
+	int sfilter = FilterArrayToInt(GetStates(), 0);
 
 	if ((sfilter & ~(StateFilterUp | StateFilterDown | StateFilterOK | StateFilterWarning | StateFilterCritical | StateFilterUnknown)) != 0) {
-		BOOST_THROW_EXCEPTION(ScriptError("Validation failed for " +
-		    location + ": State filter is invalid.", object->GetDebugInfo()));
+		BOOST_THROW_EXCEPTION(ScriptError("Validation failed: State filter is invalid.", GetDebugInfo()));
 	}
 
-	int tfilter = FilterArrayToInt(object->GetTypes(), 0);
+	int tfilter = FilterArrayToInt(GetTypes(), 0);
 
 	if ((tfilter & ~(1 << NotificationDowntimeStart | 1 << NotificationDowntimeEnd | 1 << NotificationDowntimeRemoved |
 	    1 << NotificationCustom | 1 << NotificationAcknowledgement | 1 << NotificationProblem | 1 << NotificationRecovery |
 	    1 << NotificationFlappingStart | 1 << NotificationFlappingEnd)) != 0) {
-		BOOST_THROW_EXCEPTION(ScriptError("Validation failed for " +
-		    location + ": Type filter is invalid.", object->GetDebugInfo()));
+		BOOST_THROW_EXCEPTION(ScriptError("Validation failed: Type filter is invalid.", GetDebugInfo()));
 	}
 }
 

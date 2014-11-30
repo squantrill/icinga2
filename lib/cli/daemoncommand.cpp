@@ -124,13 +124,6 @@ static bool LoadConfigFiles(const boost::program_options::variables_map& vm, con
 	if (Utility::PathExists(zonesVarDir))
 		Utility::Glob(zonesVarDir + "/*", &IncludeNonLocalZone, GlobDirectory);
 
-	String name, fragment;
-	BOOST_FOREACH(boost::tie(name, fragment), ConfigFragmentRegistry::GetInstance()->GetItems()) {
-		Expression *expression = ConfigCompiler::CompileText(name, fragment);
-		ExecuteExpression(expression);
-		delete expression;
-	}
-
 	ConfigItemBuilder::Ptr builder = new ConfigItemBuilder();
 	builder->SetType(appType);
 	builder->SetName("application");

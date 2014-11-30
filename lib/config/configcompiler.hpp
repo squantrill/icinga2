@@ -22,7 +22,6 @@
 
 #include "config/i2-config.hpp"
 #include "config/expression.hpp"
-#include "config/configtype.hpp"
 #include "base/debuginfo.hpp"
 #include "base/registry.hpp"
 #include "base/initialize.hpp"
@@ -117,9 +116,6 @@ public:
 	std::ostringstream m_LexBuffer;
 	CompilerDebugInfo m_LocationBegin;
 
-	std::stack<TypeRuleList::Ptr> m_RuleLists;
-	ConfigType::Ptr m_Type;
-
 	std::stack<bool> m_Apply;
 	std::stack<bool> m_ObjectAssign;
 	std::stack<bool> m_SeenAssign;
@@ -129,22 +125,6 @@ public:
 	std::stack<String> m_FVVar;
 	std::stack<Expression *> m_FTerm;
 };
-
-class I2_CONFIG_API ConfigFragmentRegistry : public Registry<ConfigFragmentRegistry, String>
-{
-public:
-	static ConfigFragmentRegistry *GetInstance(void);
-};
-
-#define REGISTER_CONFIG_FRAGMENT(id, name, fragment) \
-	namespace { \
-		void RegisterConfigFragment(void) \
-		{ \
-			icinga::ConfigFragmentRegistry::GetInstance()->Register(name, fragment); \
-		} \
-		\
-		INITIALIZE_ONCE(RegisterConfigFragment); \
-	}
 
 }
 

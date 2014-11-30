@@ -18,13 +18,11 @@
  ******************************************************************************/
 
 #include "icinga/command.hpp"
-#include "base/scriptfunction.hpp"
 #include "base/exception.hpp"
 
 using namespace icinga;
 
 REGISTER_TYPE(Command);
-REGISTER_SCRIPTFUNCTION(ValidateCommandAttributes, &Command::ValidateAttributes);
 
 int Command::GetModifiedAttributes(void) const
 {
@@ -44,11 +42,10 @@ void Command::SetModifiedAttributes(int flags, const MessageOrigin& origin)
 	}
 }
 
-void Command::ValidateAttributes(const String& location, const Command::Ptr& object)
+void Command::Validate(const ValidationUtils& utils) const
 {
-	if (object->GetArguments() != Empty && !object->GetCommandLine().IsObjectType<Array>()) {
-		BOOST_THROW_EXCEPTION(ScriptError("Validation failed for " +
-		    location + ": Attribute 'command' must be an array if the 'arguments' attribute is set.", object->GetDebugInfo()));
-	}
-}
+	ObjectImpl<Command>::Validate(utils);
 
+	if (GetArguments() != Empty && !GetCommandLine().IsObjectType<Array>())
+		BOOST_THROW_EXCEPTION(ScriptError("Validation failed: Attribute 'command' must be an array if the 'arguments' attribute is set.", GetDebugInfo()));
+}

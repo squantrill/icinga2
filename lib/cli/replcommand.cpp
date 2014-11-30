@@ -25,6 +25,7 @@
 #include "base/unixsocket.hpp"
 #include "base/utility.hpp"
 #include "base/networkstream.hpp"
+#include "base/exception.hpp"
 #include <iostream>
 
 #if defined(HAVE_LIBREADLINE) && defined(HAVE_LIBNCURSES)

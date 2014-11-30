@@ -21,7 +21,6 @@
 #include "config/configcompilercontext.hpp"
 #include "config/applyrule.hpp"
 #include "config/objectrule.hpp"
-#include "config/configtype.hpp"
 #include "base/application.hpp"
 #include "base/dynamictype.hpp"
 #include "base/objectlock.hpp"
@@ -34,7 +33,6 @@
 #include "base/netstring.hpp"
 #include "base/serializer.hpp"
 #include "base/json.hpp"
-#include "base/exception.hpp"
 #include <sstream>
 #include <fstream>
 #include <boost/foreach.hpp>
@@ -132,6 +130,15 @@ boost::shared_ptr<Expression> ConfigItem::GetFilter(void) const
 	return m_Filter;
 }
 
+class DefaultValidationUtils : public ValidationUtils
+{
+public:
+	virtual bool ValidateName(const String& type, const String& name) const
+	{
+		return ConfigItem::GetObject(type, name) != ConfigItem::Ptr();
+	}
+};
+
 /**
  * Commits the configuration item by creating a DynamicObject
  * object.
@@ -214,12 +221,7 @@ DynamicObject::Ptr ConfigItem::Commit(bool discard)
 	ConfigCompilerContext::GetInstance()->WriteObject(persistentItem);
 	persistentItem.reset();
 
-	ConfigType::Ptr ctype = ConfigType::GetByName(GetType());
-
-	if (ctype) {
-		TypeRuleUtilities utils;
-		ctype->ValidateItem(GetName(), dobj, GetDebugInfo(), &utils);
-	}
+	dobj->Validate(DefaultValidationUtils());
 
 	dobj->Register();
 
@@ -337,7 +339,6 @@ bool ConfigItem::CommitItems(void)
 	}
 
 	ApplyRule::CheckMatches();
-	ConfigType::DiscardTypes();
 
 	/* log stats for external parsers */
 	BOOST_FOREACH(const DynamicType::Ptr& type, DynamicType::GetTypes()) {
