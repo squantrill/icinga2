@@ -124,7 +124,7 @@ Dictionary::Ptr HostDbObject::GetStatusFields(void) const
 
 	fields->Set("current_state", host->IsReachable() ? host->GetState() : 2);
 	fields->Set("has_been_checked", CompatUtility::GetCheckableHasBeenChecked(host));
-	fields->Set("should_be_scheduled", host->GetEnableActiveChecks());
+	fields->Set("should_be_scheduled", CompatUtility::GetCheckableActiveChecksEnabled(host));
 	fields->Set("current_check_attempt", host->GetCheckAttempt());
 	fields->Set("max_check_attempts", host->GetMaxCheckAttempts());
 
