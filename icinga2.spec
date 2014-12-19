@@ -104,12 +104,8 @@ BuildRequires: ncurses-devel
 # el5 requires packages.icinga.org
 BuildRequires: boost153-devel
 %else
-%if "%{_vendor}" == "suse" && 0%{?suse_version} < 1310
 # sles 11 sp3 requires packages.icinga.org
-BuildRequires: boost153-devel
-%else
 BuildRequires: boost-devel >= 1.41
-%endif
 %endif
 
 %if 0%{?use_systemd}
