@@ -23,7 +23,11 @@ mkclass_target(perfdatawriter.ti perfdatawriter.thpp)
 mkembedconfig_target(perfdata-type.conf perfdata-type.cpp)
 
 set(perfdata_SOURCES
+<<<<<<< HEAD
   gelfwriter.cpp gelfwriter.thpp graphitewriter.cpp graphitewriter.thpp opentsdbwriter.cpp opentsdbwriter.thpp perfdatawriter.cpp perfdatawriter.thpp perfdata-type.cpp
+=======
+  graphitewriter.cpp graphitewriter.thpp opentsdbwriter.cpp opentsdbwriter.thpp perfdatawriter.cpp perfdatawriter.thpp perfdata-type.cpp
+>>>>>>> cac641408fb1bdb2ac58460647193edd87db8a3c
 )
 
 if(ICINGA2_UNITY_BUILD)

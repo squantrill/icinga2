@@ -1402,6 +1402,7 @@ Attributes:
   port            	|**Optional.** GELF receiver port. Defaults to `12201`.
   source		|**Optional.** Source name for this instance. Defaults to `icinga2`.
 
+
 ### <a id="objecttype-idomysqlconnection"></a> IdoMySqlConnection
 
 IDO database adapter for MySQL.

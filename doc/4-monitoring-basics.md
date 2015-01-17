@@ -2403,6 +2403,7 @@ with the following tags
   service | the service name (if type=service)
 
 
+<<<<<<< HEAD
 ### <a id="gelfwriter"></a> GELF Writer
 
 The `Graylog Extended Log Format` (short: [GELF](http://www.graylog2.org/resources/gelf))
@@ -2426,6 +2427,8 @@ Currently these events are processed:
 * Notifications
 
 
+=======
+>>>>>>> cac641408fb1bdb2ac58460647193edd87db8a3c
 
 ## <a id="status-data"></a> Status Data
 

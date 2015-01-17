@@ -382,10 +382,6 @@ monitoring graphs.
 * Native support for [OpenTSDB](#opentsdb-writer)
 
 In addition to [Graphite](#graphite-carbon-cache-writer) Icinga 2 adds the
-capability of writing performance data directly into a OpenTSDB TSD TCP socket simplifying realtime
-monitoring graphs.
-
-* Native support for writing log events to [GELF](#gelf-writer) receivers (graylog2, Logstash)
 
 Icinga 2 will write all check result, state change and notification event logs into a defined
 [GELF](#gelfwriter) input receiver. Natively provided by [graylog2](http://www.graylog2.org),
