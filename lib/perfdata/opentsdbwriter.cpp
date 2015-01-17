@@ -79,12 +79,14 @@ void OpenTsdbWriter::ReconnectTimerHandler(void)
 
 	TcpSocket::Ptr socket = new TcpSocket();
 
-	Log(LogNotice, "OpenTsdbWriter", "Reconnect to tcp socket on host '" + GetHost() + "' port '" + GetPort() + "'.");
+	Log(LogNotice, "OpenTsdbWriter")
+		<< "Reconnect to OpenTSDB TSD on host '" << GetHost() << "' port '" << GetPort() << "'.";
 
 	try {
 		socket->Connect(GetHost(), GetPort());
 	} catch (std::exception&) {
-		Log(LogCritical, "OpenTsdbWriter", "Can't connect to tcp socket on host '" + GetHost() + "' port '" + GetPort() + "'.");
+		Log(LogCritical, "OpenTsdbWriter")
+			<< "Can't connect to OpenTSDB TSD on host '" << GetHost() << "' port '" << GetPort() << "'.";
 		return;
 	}
 
@@ -163,7 +165,8 @@ void OpenTsdbWriter::SendPerfdata(const String& metric, const std::map<String, S
 			try {
 				pdv = PerfdataValue::Parse(val);
 			} catch (const std::exception&) {
-				Log(LogWarning, "OpenTsdbWriter", "Ignoring invalid perfdata value: " + val);
+				Log(LogWarning, "OpenTsdbWriter")
+					<< "Ignoring invalid perfdata value: " << val;
 				continue;
 			}
 		}
@@ -200,7 +203,8 @@ void OpenTsdbWriter::SendMetric(const String& metric, const std::map<String, Str
 	 */
 	msgbuf << "put " << metric << " " << static_cast<long>(Utility::GetTime()) << " " << Convert::ToString(value) << " " << tags_string;
 
-	Log(LogDebug, "OpenTsdbWriter", "Add to metric list:'" + msgbuf.str() + "'.");
+	Log(LogDebug, "OpenTsdbWriter")
+		<< "Add to metric list:'" << msgbuf.str() << "'.";
 
 	/* do not send \n to debug log */
 	msgbuf << "\n";
@@ -214,7 +218,8 @@ void OpenTsdbWriter::SendMetric(const String& metric, const std::map<String, Str
 	try {
 		m_Stream->Write(put.CStr(), put.GetLength());
 	} catch (const std::exception& ex) {
-		Log(LogCritical, "OpenTsdbWriter", "Cannot write to TCP socket on host '" + GetHost() + "' port '" + GetPort() + "'.");
+		Log(LogCritical, "OpenTsdbWriter")
+			<< "Cannot write to TCP socket on host '" << GetHost() << "' port '" << GetPort() + "'.";
 
 		m_Stream.reset();
 	}
