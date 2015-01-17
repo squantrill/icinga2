@@ -219,7 +219,7 @@ void OpenTsdbWriter::SendMetric(const String& metric, const std::map<String, Str
 		m_Stream->Write(put.CStr(), put.GetLength());
 	} catch (const std::exception& ex) {
 		Log(LogCritical, "OpenTsdbWriter")
-			<< "Cannot write to TCP socket on host '" << GetHost() << "' port '" << GetPort() + "'.";
+			<< "Cannot write to OpenTSDB TSD on host '" << GetHost() << "' port '" << GetPort() + "'.";
 
 		m_Stream.reset();
 	}
