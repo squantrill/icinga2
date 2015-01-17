@@ -190,10 +190,10 @@ void OpenTsdbWriter::SendPerfdata(const String& metric, const std::map<String, S
 
 void OpenTsdbWriter::SendMetric(const String& metric, const std::map<String, String>& tags, double value)
 {
-    String tags_string = "";
-    BOOST_FOREACH(const Dictionary::Pair& tag, tags) {
-       tags_string += " " + tag.first + "=" + Convert::ToString(tag.second);
-    }
+	String tags_string = "";
+	BOOST_FOREACH(const Dictionary::Pair& tag, tags) {
+		tags_string += " " + tag.first + "=" + Convert::ToString(tag.second);
+	}
 
 	std::ostringstream msgbuf;
 	/*
