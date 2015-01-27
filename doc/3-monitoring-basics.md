@@ -2310,7 +2310,6 @@ Cache. Please make sure that the order is correct because the first match wins.
     pattern = ^icinga\.
     retentions = 1m:2d,5m:10d,30m:90d,360m:4y
 
-
 ### <a id="opentsdb-writer"></a> OpenTSDB Writer
 
 While there are some OpenTSDB collector scripts and daemons like tcollector available for
@@ -2368,7 +2367,6 @@ with the following tags
   type    | the check type, one of [host, service]
   host    | hostname, the check ran on
   service | the service name (if type=service)
-
 
 ### <a id="gelfwriter"></a> GELF Writer
 
@@ -2450,6 +2448,9 @@ with the following tags
   host    | hostname, the check ran on
   service | the service name (if type=service)
 
+
+=======
+>>>>>>> cac641408fb1bdb2ac58460647193edd87db8a3c
 
 ## <a id="status-data"></a> Status Data
 
